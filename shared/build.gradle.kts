@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
@@ -26,10 +28,23 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            implementation(libs.sql.delight.runtime)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.sql.delight.native.driver)
+        }
+        jvmMain.dependencies {
+            implementation(libs.sql.delight.sqlite.driver)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.android.driver)
         }
     }
 }
@@ -43,5 +58,13 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+sqldelight {
+    databases {
+        create("FoodDatabase") {
+            packageName.set("sqldelight.dbscheme")
+        }
     }
 }
