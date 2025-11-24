@@ -26,7 +26,6 @@ sql-delight-native-driver = { module = "app.cash.sqldelight:native-driver", vers
 sql-delight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sql-delight" }
 sql-delight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sql-delight" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
 

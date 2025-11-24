@@ -4,7 +4,7 @@ import app.cash.sqldelight.db.SqlDriver
 import com.kurban.calory.core.data.db.DefaultProducts
 import sqldelight.dbscheme.FoodDatabase
 
-object Database {
+object DatabaseInitializer {
     lateinit var db: FoodDatabase
 
     fun initDatabase(driver: SqlDriver) {

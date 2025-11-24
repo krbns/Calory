@@ -1,14 +1,24 @@
 package com.kurban.calory
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.kurban.calory.main.MainScreen
+import androidx.compose.ui.window.rememberWindowState
+import com.kurban.calory.core.data.db.DatabaseDriverFactory
+import com.kurban.calory.core.data.db.DriverContext
+import com.kurban.calory.core.di.initKoin
+import com.kurban.calory.features.main.ui.MainViewModel
+import com.kurban.calory.features.main.MainScreen
 
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Calory",
+        state = rememberWindowState(width = 420.dp, height = 760.dp)
     ) {
-        MainScreen()
+        val koin = remember { initKoin(DatabaseDriverFactory(DriverContext()).createDriver()) }
+        val viewModel = remember { koin.get<MainViewModel>() }
+        MainScreen(viewModel)
     }
 }

@@ -4,23 +4,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.kurban.calory.main.MainScreen
+import androidx.compose.runtime.remember
+import com.kurban.calory.core.data.db.DatabaseDriverFactory
+import com.kurban.calory.core.di.initKoin
+import com.kurban.calory.features.main.ui.MainViewModel
+import com.kurban.calory.features.main.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val koin = initKoin(DatabaseDriverFactory(this).createDriver())
+
         setContent {
-            MainScreen()
+            val viewModel = remember {
+                koin.get<MainViewModel>()
+            }
+            MainScreen(viewModel = viewModel)
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    CaloryApp()
 }

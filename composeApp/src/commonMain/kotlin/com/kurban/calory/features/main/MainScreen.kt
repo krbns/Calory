@@ -1,0 +1,544 @@
+package com.kurban.calory.features.main
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.kurban.calory.core.theme.CaloryTheme
+import com.kurban.calory.features.main.domain.model.Food
+import com.kurban.calory.features.main.domain.model.TrackedFood
+import com.kurban.calory.features.main.ui.MainUiState
+import com.kurban.calory.features.main.ui.MainViewModel
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.roundToInt
+
+@Composable
+fun MainScreen(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.uiState.collectAsState()
+
+    MainContent(
+        state = state,
+        onQueryChanged = viewModel::onQueryChanged,
+        onSelectFood = viewModel::onFoodSelected,
+        onGramsChanged = viewModel::onGramsChanged,
+        onAddFood = viewModel::addSelectedFood,
+        onRemoveEntry = viewModel::removeEntry,
+        onErrorDismiss = viewModel::clearError,
+        modifier = modifier
+    )
+
+    DisposableEffect(Unit) {
+        onDispose { viewModel.clear() }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MainContent(
+    state: MainUiState,
+    onQueryChanged: (String) -> Unit,
+    onSelectFood: (Food) -> Unit,
+    onGramsChanged: (String) -> Unit,
+    onAddFood: () -> Unit,
+    onRemoveEntry: (Long) -> Unit,
+    onErrorDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CaloryTheme {
+        val surfaceGradient = remember {
+            Brush.linearGradient(
+                listOf(
+                    Color(0xFF0B132B),
+                    Color(0xFF0F2027)
+                )
+            )
+        }
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = Color.Transparent
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(surfaceGradient)
+                    .padding(padding)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Header()
+                    SummaryCard(
+                        calories = state.totalCalories,
+                        proteins = state.totalProteins,
+                        fats = state.totalFats,
+                        carbs = state.totalCarbs
+                    )
+                    SearchSection(
+                        query = state.query,
+                        results = state.searchResults,
+                        isSearching = state.isSearching,
+                        onQueryChanged = onQueryChanged,
+                        onSelect = onSelectFood
+                    )
+                    SelectionSection(
+                        selected = state.selectedFood,
+                        gramsInput = state.gramsInput,
+                        onGramsChanged = onGramsChanged,
+                        onAdd = onAddFood
+                    )
+                    ConsumptionList(
+                        items = state.consumed,
+                        onRemove = onRemoveEntry
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = state.error != null,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
+                    enter = fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing)),
+                    exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
+                ) {
+                    ErrorCard(message = state.error.orEmpty(), onDismiss = onErrorDismiss)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Header() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Calory",
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "Plan your intake, stay on track.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+        )
+    }
+}
+
+@Composable
+private fun SummaryCard(
+    calories: Double,
+    proteins: Double,
+    fats: Double,
+    carbs: Double,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Today",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "${calories.roundToOne()} kcal",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Total consumed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    MacroPill("P", proteins, MaterialTheme.colorScheme.secondary)
+                    MacroPill("F", fats, MaterialTheme.colorScheme.tertiary)
+                    MacroPill("C", carbs, MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MacroPill(label: String, value: Double, color: Color) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(color.copy(alpha = 0.15f))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = color)
+        Text(
+            text = value.roundToOne(),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+@Composable
+private fun SearchSection(
+    query: String,
+    results: List<Food>,
+    isSearching: Boolean,
+    onQueryChanged: (String) -> Unit,
+    onSelect: (Food) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = onQueryChanged,
+            modifier = Modifier
+                .fillMaxWidth(),
+            label = { Text("Search foods") },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            ),
+            singleLine = true
+        )
+
+        val itemsToShow = if (isSearching && results.isEmpty()) emptyList() else results.take(6)
+        if (itemsToShow.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(itemsToShow) { food ->
+                    FoodRow(food = food, onSelect = { onSelect(food) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FoodRow(
+    food: Food,
+    onSelect: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = food.name,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "${food.calories.roundToOne()} kcal · P ${food.proteins.roundToOne()} / F ${food.fats.roundToOne()} / C ${food.carbs.roundToOne()} per 100g",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            TextButton(onClick = onSelect) {
+                Text("Select")
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionSection(
+    selected: Food?,
+    gramsInput: String,
+    onGramsChanged: (String) -> Unit,
+    onAdd: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                text = "Add to diary",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (selected != null) {
+                Text(
+                    text = selected.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                Text(
+                    text = "Pick a product from search",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = gramsInput,
+                    onValueChange = onGramsChanged,
+                    label = { Text("Portion (g)") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+                Button(
+                    onClick = onAdd,
+                    enabled = selected != null && gramsInput.isNotBlank(),
+                    modifier = Modifier.height(56.dp)
+                ) {
+                    Text("Add")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConsumptionList(
+    items: List<TrackedFood>,
+    onRemove: (Long) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Today’s meals",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "${items.sumOf { it.grams }} g total",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (items.isEmpty()) {
+                Text(
+                    text = "No items yet. Add your first portion.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 260.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items, key = { it.entryId }) { item ->
+                        ConsumptionRow(item, onRemove)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConsumptionRow(
+    item: TrackedFood,
+    onRemove: (Long) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "${item.grams}g",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "${item.calories.roundToOne()} kcal · P ${item.proteins.roundToOne()} / F ${item.fats.roundToOne()} / C ${item.carbs.roundToOne()}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        IconButton(onClick = { onRemove(item.entryId) }) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Remove",
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorCard(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.errorContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onDismiss) {
+                Text("Dismiss", color = MaterialTheme.colorScheme.onErrorContainer)
+            }
+        }
+    }
+}
+
+private fun Double.roundToOne(): String {
+    val rounded = (this * 10.0).roundToInt().toDouble() / 10.0
+    return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    val previewState = remember {
+        MainUiState(
+            query = "apple",
+            gramsInput = "150",
+            searchResults = listOf(
+                Food(1, 0, "Banana", 89.0, 1.1, 0.3, 23.0),
+                Food(2, 0, "Chicken breast", 165.0, 31.0, 3.6, 0.0),
+                Food(3, 0, "Oats", 379.0, 17.0, 7.0, 67.0)
+            ),
+            consumed = listOf(
+                TrackedFood(1, 1, "Banana", 120, 106.8, 1.3, 0.4, 27.6),
+                TrackedFood(2, 2, "Chicken breast", 200, 330.0, 62.0, 7.2, 0.0)
+            ),
+            totalCalories = 436.8,
+            totalProteins = 63.3,
+            totalFats = 7.6,
+            totalCarbs = 27.6
+        )
+    }
+
+    MainContent(
+        state = previewState,
+        onQueryChanged = {},
+        onSelectFood = {},
+        onGramsChanged = {},
+        onAddFood = {},
+        onRemoveEntry = {},
+        onErrorDismiss = {}
+    )
+}

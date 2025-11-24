@@ -6,15 +6,15 @@ import sqldelight.dbscheme.FoodDatabase
 
 class LocalFoodDataSource(private val database: FoodDatabase) : FoodDataSource {
     override fun findFood(name: String): Food? {
-        val food = database.foodQueries.findByName(name).executeAsOneOrNull()
+        val food = database.foodQueries.findByName(name).executeAsOneOrNull() ?: return null
         return Food(
-            id = food?.id ?: 0,
+            id = food.id,
             grams = 0,
-            name = food?.name.orEmpty(),
-            calories = food?.calories ?: 0.0,
-            proteins = food?.proteins ?: 0.0,
-            fats = food?.fats ?: 0.0,
-            carbs = food?.carbs ?: 0.0,
+            name = food.name,
+            calories = food.calories,
+            proteins = food.proteins,
+            fats = food.fats,
+            carbs = food.carbs,
         )
     }
 
