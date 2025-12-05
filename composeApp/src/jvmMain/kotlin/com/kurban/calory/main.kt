@@ -12,13 +12,12 @@ import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.MainScreen
 
 fun main() = application {
+    initKoin(DatabaseDriverFactory(DriverContext()))
     Window(
         onCloseRequest = ::exitApplication,
         title = "Calory",
         state = rememberWindowState(width = 420.dp, height = 760.dp)
     ) {
-        val koin = remember { initKoin(DatabaseDriverFactory(DriverContext()).createDriver()) }
-        val viewModel = remember { koin.get<MainViewModel>() }
-        MainScreen(viewModel)
+        MainScreen()
     }
 }

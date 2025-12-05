@@ -5,5 +5,7 @@ import app.cash.sqldelight.db.SqlDriver
 expect class DriverContext
 
 expect class DatabaseDriverFactory(driverContext: DriverContext) {
-    fun createDriver(): SqlDriver
+    fun createDriverForFoodDatabase(): SqlDriver
+
+    fun createDriverForTrackedDatabase(): SqlDriver
 }

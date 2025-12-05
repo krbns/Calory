@@ -1,0 +1,22 @@
+CREATE TABLE TrackedFood(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    foodId INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    grams INTEGER NOT NULL,
+    calories REAL NOT NULL,
+    proteins REAL NOT NULL,
+    fats REAL NOT NULL,
+    carbs REAL NOT NULL,
+    dayId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+insertTrackedFood:
+INSERT INTO TrackedFood(foodId, name, grams, calories, proteins, fats, carbs, dayId, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectTrackedByDay:
+SELECT * FROM TrackedFood WHERE dayId = ? ORDER BY timestamp DESC;
+
+deleteTracked:
+DELETE FROM TrackedFood WHERE id = ?;

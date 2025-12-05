@@ -2,7 +2,7 @@ package com.kurban.calory.features.main.data.local
 
 import com.kurban.calory.features.main.data.FoodDataSource
 import com.kurban.calory.features.main.domain.model.Food
-import sqldelight.dbscheme.FoodDatabase
+import sqldelight.foodScheme.food.FoodDatabase
 
 class LocalFoodDataSource(private val database: FoodDatabase) : FoodDataSource {
     override fun findFood(name: String): Food? {

@@ -1,7 +1,7 @@
-package com.kurban.calory.features.main.domain.model
+package com.kurban.calory.features.main.ui.model
 
-data class TrackedFood(
-    val id: Long,
+data class UITrackedFood(
+    val entryId: Long,
     val foodId: Long,
     val name: String,
     val grams: Int,
@@ -9,6 +9,4 @@ data class TrackedFood(
     val proteins: Double,
     val fats: Double,
     val carbs: Double,
-    val dayId: String,
-    val timestamp: Long
 )

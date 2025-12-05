@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_title">Calory</string>
+    <string name="subtitle">Планируйте питание и контролируйте калории.</string>
+    <string name="today">Сегодня</string>
+    <string name="total_consumed">Итого съедено</string>
+
+    <string name="macro_protein_short">Б</string>
+    <string name="macro_fat_short">Ж</string>
+    <string name="macro_carb_short">У</string>
+
+    <string name="search_foods">Поиск продуктов</string>
+    <string name="select">Выбрать</string>
+
+    <string name="add_to_diary">Добавить в дневник</string>
+    <string name="pick_from_search">Выберите продукт из поиска</string>
+    <string name="portion_grams">Порция (г)</string>
+    <string name="add">Добавить</string>
+
+    <string name="meals_today">Приемы пищи</string>
+    <string name="empty_list">Пока пусто. Добавьте первую порцию.</string>
+    <string name="remove">Убрать</string>
+    <string name="dismiss">Закрыть</string>
+
+    <string name="food_macros_100">%1$s ккал · Б %2$s / Ж %3$s / У %4$s на 100 г</string>
+    <string name="food_macros_entry">%1$s ккал · Б %2$s / Ж %3$s / У %4$s</string>
+    <string name="grams_total">%1$d г всего</string>
+</resources>

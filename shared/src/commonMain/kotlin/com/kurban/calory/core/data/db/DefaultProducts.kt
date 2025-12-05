@@ -1,6 +1,7 @@
 package com.kurban.calory.core.data.db
 
-import sqldelight.dbscheme.FoodDatabase
+import sqldelight.foodScheme.food.FoodDatabase
+
 
 object DefaultProducts {
 

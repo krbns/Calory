@@ -31,6 +31,8 @@ kotlin {
             implementation(libs.sql.delight.runtime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.koin.core)
+            implementation(libs.viewModel)
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -64,7 +66,12 @@ android {
 sqldelight {
     databases {
         create("FoodDatabase") {
-            packageName.set("sqldelight.dbscheme")
+            packageName.set("sqldelight.foodScheme.food")
+            srcDirs.from("src/commonMain/sqldelight/foodScheme")
+        }
+        create("TrackedFoodDatabase") {
+            packageName.set("sqldelight.trackedFoodScheme.tracked")
+            srcDirs.from("src/commonMain/sqldelight/trackedFoodScheme")
         }
     }
 }

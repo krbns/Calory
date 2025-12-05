@@ -4,7 +4,8 @@ import com.kurban.calory.core.data.db.DatabaseDriverFactory
 import com.kurban.calory.core.data.db.DriverContext
 import com.kurban.calory.core.di.initKoin
 import org.koin.core.Koin
+import org.koin.core.KoinApplication
 
-fun initKoinIos(): Koin {
-    return initKoin(DatabaseDriverFactory(DriverContext()).createDriver())
+fun initKoinIos(): KoinApplication {
+    return initKoin(DatabaseDriverFactory(DriverContext())) {}
 }

@@ -2,7 +2,7 @@ package com.kurban.calory.core.data.db.sqldelight
 
 import app.cash.sqldelight.db.SqlDriver
 import com.kurban.calory.core.data.db.DefaultProducts
-import sqldelight.dbscheme.FoodDatabase
+import sqldelight.foodScheme.food.FoodDatabase
 
 object DatabaseInitializer {
     lateinit var db: FoodDatabase

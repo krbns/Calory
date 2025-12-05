@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package com.kurban.calory.features.main
 
 import androidx.compose.animation.AnimatedVisibility
@@ -48,19 +50,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import calory.composeapp.generated.resources.Res
+import calory.composeapp.generated.resources.add
+import calory.composeapp.generated.resources.add_to_diary
+import calory.composeapp.generated.resources.app_title
+import calory.composeapp.generated.resources.dismiss
+import calory.composeapp.generated.resources.empty_list
+import calory.composeapp.generated.resources.food_macros_100
+import calory.composeapp.generated.resources.food_macros_entry
+import calory.composeapp.generated.resources.macro_carb_short
+import calory.composeapp.generated.resources.macro_fat_short
+import calory.composeapp.generated.resources.macro_protein_short
+import calory.composeapp.generated.resources.meals_today
+import calory.composeapp.generated.resources.pick_from_search
+import calory.composeapp.generated.resources.portion_grams
+import calory.composeapp.generated.resources.remove
+import calory.composeapp.generated.resources.search_foods
+import calory.composeapp.generated.resources.select
+import calory.composeapp.generated.resources.subtitle
+import calory.composeapp.generated.resources.today
+import calory.composeapp.generated.resources.total_consumed
+import calory.composeapp.generated.resources.grams_total
 import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.features.main.domain.model.Food
-import com.kurban.calory.features.main.domain.model.TrackedFood
-import com.kurban.calory.features.main.ui.MainUiState
+import com.kurban.calory.features.main.ui.model.UITrackedFood
+import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.main.ui.MainViewModel
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsState()
 
     MainContent(
@@ -79,24 +106,25 @@ fun MainScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 private fun MainContent(
     state: MainUiState,
+    modifier: Modifier = Modifier,
     onQueryChanged: (String) -> Unit,
     onSelectFood: (Food) -> Unit,
     onGramsChanged: (String) -> Unit,
     onAddFood: () -> Unit,
     onRemoveEntry: (Long) -> Unit,
-    onErrorDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    onErrorDismiss: () -> Unit
 ) {
     CaloryTheme {
+        val colors = MaterialTheme.colorScheme
         val surfaceGradient = remember {
             Brush.linearGradient(
                 listOf(
-                    Color(0xFF0B132B),
-                    Color(0xFF0F2027)
+                    colors.background,
+                    colors.surfaceVariant
                 )
             )
         }
@@ -137,7 +165,7 @@ private fun MainContent(
                         onAdd = onAddFood
                     )
                     ConsumptionList(
-                        items = state.consumed,
+                        items = state.tracked,
                         onRemove = onRemoveEntry
                     )
                 }
@@ -161,12 +189,12 @@ private fun MainContent(
 private fun Header() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Calory",
+            text = stringResource(Res.string.app_title),
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Plan your intake, stay on track.",
+            text = stringResource(Res.string.subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
         )
@@ -190,7 +218,7 @@ private fun SummaryCard(
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Today",
+                text = stringResource(Res.string.today),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -202,20 +230,20 @@ private fun SummaryCard(
             ) {
                 Column {
                     Text(
-                        text = "${calories.roundToOne()} kcal",
+                        text = "${calories.roundToOne()} ккал",
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Total consumed",
+                        text = stringResource(Res.string.total_consumed),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MacroPill("P", proteins, MaterialTheme.colorScheme.secondary)
-                    MacroPill("F", fats, MaterialTheme.colorScheme.tertiary)
-                    MacroPill("C", carbs, MaterialTheme.colorScheme.primary)
+                    MacroPill(stringResource(Res.string.macro_protein_short), proteins, MaterialTheme.colorScheme.secondary)
+                    MacroPill(stringResource(Res.string.macro_fat_short), fats, MaterialTheme.colorScheme.tertiary)
+                    MacroPill(stringResource(Res.string.macro_carb_short), carbs, MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -254,7 +282,7 @@ private fun SearchSection(
             onValueChange = onQueryChanged,
             modifier = Modifier
                 .fillMaxWidth(),
-            label = { Text("Search foods") },
+            label = { Text(stringResource(Res.string.search_foods)) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -302,7 +330,13 @@ private fun FoodRow(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${food.calories.roundToOne()} kcal · P ${food.proteins.roundToOne()} / F ${food.fats.roundToOne()} / C ${food.carbs.roundToOne()} per 100g",
+                    text = stringResource(
+                        Res.string.food_macros_100,
+                        food.calories.roundToOne(),
+                        food.proteins.roundToOne(),
+                        food.fats.roundToOne(),
+                        food.carbs.roundToOne()
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -310,7 +344,7 @@ private fun FoodRow(
                 )
             }
             TextButton(onClick = onSelect) {
-                Text("Select")
+                Text(stringResource(Res.string.select))
             }
         }
     }
@@ -331,7 +365,7 @@ private fun SelectionSection(
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
-                text = "Add to diary",
+                text = stringResource(Res.string.add_to_diary),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -343,7 +377,7 @@ private fun SelectionSection(
                 )
             } else {
                 Text(
-                    text = "Pick a product from search",
+                    text = stringResource(Res.string.pick_from_search),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -355,7 +389,7 @@ private fun SelectionSection(
                 OutlinedTextField(
                     value = gramsInput,
                     onValueChange = onGramsChanged,
-                    label = { Text("Portion (g)") },
+                    label = { Text(stringResource(Res.string.portion_grams)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
@@ -364,7 +398,7 @@ private fun SelectionSection(
                     enabled = selected != null && gramsInput.isNotBlank(),
                     modifier = Modifier.height(56.dp)
                 ) {
-                    Text("Add")
+                    Text(stringResource(Res.string.add))
                 }
             }
         }
@@ -373,7 +407,7 @@ private fun SelectionSection(
 
 @Composable
 private fun ConsumptionList(
-    items: List<TrackedFood>,
+    items: List<UITrackedFood>,
     onRemove: (Long) -> Unit
 ) {
     Card(
@@ -391,19 +425,19 @@ private fun ConsumptionList(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Today’s meals",
+                    text = stringResource(Res.string.meals_today),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${items.sumOf { it.grams }} g total",
+                    text = stringResource(Res.string.grams_total, items.sumOf { it.grams }),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (items.isEmpty()) {
                 Text(
-                    text = "No items yet. Add your first portion.",
+                    text = stringResource(Res.string.empty_list),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -425,7 +459,7 @@ private fun ConsumptionList(
 
 @Composable
 private fun ConsumptionRow(
-    item: TrackedFood,
+    item: UITrackedFood,
     onRemove: (Long) -> Unit
 ) {
     Row(
@@ -445,7 +479,7 @@ private fun ConsumptionRow(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "${item.grams}g",
+                text = "${item.grams} г",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary
             )
@@ -457,7 +491,13 @@ private fun ConsumptionRow(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "${item.calories.roundToOne()} kcal · P ${item.proteins.roundToOne()} / F ${item.fats.roundToOne()} / C ${item.carbs.roundToOne()}",
+                text = stringResource(
+                    Res.string.food_macros_entry,
+                    item.calories.roundToOne(),
+                    item.proteins.roundToOne(),
+                    item.fats.roundToOne(),
+                    item.carbs.roundToOne()
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
@@ -467,7 +507,7 @@ private fun ConsumptionRow(
         IconButton(onClick = { onRemove(item.entryId) }) {
             Icon(
                 imageVector = Icons.Default.Delete,
-                contentDescription = "Remove",
+                contentDescription = stringResource(Res.string.remove),
                 tint = MaterialTheme.colorScheme.error
             )
         }
@@ -498,7 +538,7 @@ private fun ErrorCard(
                 modifier = Modifier.weight(1f)
             )
             TextButton(onClick = onDismiss) {
-                Text("Dismiss", color = MaterialTheme.colorScheme.onErrorContainer)
+                Text(stringResource(Res.string.dismiss), color = MaterialTheme.colorScheme.onErrorContainer)
             }
         }
     }
@@ -521,9 +561,9 @@ fun MainScreenPreview() {
                 Food(2, 0, "Chicken breast", 165.0, 31.0, 3.6, 0.0),
                 Food(3, 0, "Oats", 379.0, 17.0, 7.0, 67.0)
             ),
-            consumed = listOf(
-                TrackedFood(1, 1, "Banana", 120, 106.8, 1.3, 0.4, 27.6),
-                TrackedFood(2, 2, "Chicken breast", 200, 330.0, 62.0, 7.2, 0.0)
+            tracked = listOf(
+                UITrackedFood(1, 1, "Banana", 120, 106.8, 1.3, 0.4, 27.6),
+                UITrackedFood(2, 2, "Chicken breast", 200, 330.0, 62.0, 7.2, 0.0)
             ),
             totalCalories = 436.8,
             totalProteins = 63.3,
