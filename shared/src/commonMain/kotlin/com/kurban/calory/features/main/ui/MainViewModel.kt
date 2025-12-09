@@ -40,7 +40,8 @@ class MainViewModel(
             deleteTrackedFood = deleteTrackedFood,
             addTrackedFoodUseCase = addTrackedFoodUseCase,
             dispatchers = dispatchers,
-            dayProvider = dayProvider
+            dayProvider = dayProvider,
+            scope = viewModelScope
         ).build(),
         scope = viewModelScope
     )

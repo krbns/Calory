@@ -19,7 +19,14 @@ class LocalFoodDataSource(private val database: FoodDatabase) : FoodDataSource {
     }
 
     override fun search(query: String): List<Food> {
-        return database.foodQueries.search("%$query%").executeAsList().map { it ->
+        val q = query.trim()
+        val likePattern = "%$q%"
+        val titleCase = q.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        val likeTitle = "%$titleCase%"
+        val prefixPattern = "$q%"
+        val prefixTitle = "$titleCase%"
+
+        return database.foodQueries.search(likePattern, likeTitle, prefixPattern, prefixTitle).executeAsList().map { it ->
             Food(
                 id = it.id,
                 grams = 0,

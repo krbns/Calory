@@ -13,6 +13,9 @@ import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.main.ui.model.UITrackedFood
 import com.kurban.calory.features.main.ui.model.MacroTotals
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
@@ -23,13 +26,15 @@ class MainMiddlewares(
     private val addTrackedFoodUseCase: AddTrackedFoodUseCase,
     private val dispatchers: AppDispatchers,
     private val dayProvider: DayProvider,
+    private val scope: CoroutineScope,
 ) {
+    private var searchJob: Job? = null
 
     fun build(): List<Middleware<MainUiState, MainAction, MainEffect>> = listOf(coreMiddleware())
 
     private fun coreMiddleware(): Middleware<MainUiState, MainAction, MainEffect> = { action, state, dispatch, emitEffect ->
         when (action) {
-            is MainAction.QueryChanged -> handleSearch(action.query, state, dispatch, emitEffect)
+            is MainAction.QueryChanged -> handleSearch(action.query, dispatch, emitEffect)
             is MainAction.LoadDay -> handleLoadDay(action.dayId, dispatch, emitEffect)
             is MainAction.AddSelectedFood -> handleAddFood(state, dispatch, emitEffect)
             is MainAction.RemoveEntry -> handleRemoveEntry(action.entryId, dispatch, emitEffect)
@@ -39,7 +44,6 @@ class MainMiddlewares(
 
     private suspend fun handleSearch(
         query: String,
-        state: MainUiState,
         dispatch: suspend (MainAction) -> Unit,
         emitEffect: suspend (MainEffect) -> Unit
     ) {
@@ -47,12 +51,15 @@ class MainMiddlewares(
             dispatch(MainAction.SearchSuccess(emptyList()))
             return
         }
-        try {
-            val result = searchFood(SearchFoodUseCase.Parameters(query)) ?: emptyList()
-            dispatch(MainAction.SearchSuccess(result))
-        } catch (e: Exception) {
-            emitEffect(MainEffect.Error(e.message ?: "Ошибка поиска"))
-            dispatch(MainAction.SearchFailure(e.message.orEmpty()))
+        searchJob?.cancel()
+        searchJob = scope.launch(dispatchers.io) {
+            try {
+                val result = searchFood(SearchFoodUseCase.Parameters(query)) ?: emptyList()
+                dispatch(MainAction.SearchSuccess(result))
+            } catch (e: Exception) {
+                emitEffect(MainEffect.Error(e.message ?: "Ошибка поиска"))
+                dispatch(MainAction.SearchFailure(e.message.orEmpty()))
+            }
         }
     }
 

@@ -18,4 +18,10 @@ findByName:
 SELECT * FROM FoodEntity WHERE LOWER(name) = LOWER(?);
 
 search:
-SELECT * FROM FoodEntity WHERE LOWER(name) LIKE LOWER(?);
+SELECT * FROM FoodEntity
+WHERE name LIKE ? OR name LIKE ?
+ORDER BY CASE
+    WHEN name LIKE ? THEN 0
+    WHEN name LIKE ? THEN 0
+    ELSE 1
+END, name;
