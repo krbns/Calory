@@ -6,7 +6,7 @@ import com.kurban.calory.core.domain.AppDispatchers
 import com.kurban.calory.core.mvi.Store
 import com.kurban.calory.core.time.DayProvider
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
-import com.kurban.calory.features.main.domain.DeleteConsumedFoodUseCase
+import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.ui.logic.AddFoodMiddleware
@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 class MainViewModel(
     searchFood: SearchFoodUseCase,
     getTrackedForDay: GetTrackedForDayUseCase,
-    deleteTrackedFood: DeleteConsumedFoodUseCase,
+    deleteTrackedFood: DeleteTrackedFoodUseCase,
     addTrackedFoodUseCase: AddTrackedFoodUseCase,
     dispatchers: AppDispatchers,
     private val dayProvider: DayProvider,
@@ -35,7 +35,7 @@ class MainViewModel(
         reducer = mainReducer(),
         middlewares = listOf(
             SearchMiddleware(searchFood, dispatchers, viewModelScope),
-            LoadDayMiddleware(getTrackedForDay, dispatchers, dayProvider),
+            LoadDayMiddleware(getTrackedForDay, dispatchers),
             AddFoodMiddleware(addTrackedFoodUseCase),
             RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
         ),

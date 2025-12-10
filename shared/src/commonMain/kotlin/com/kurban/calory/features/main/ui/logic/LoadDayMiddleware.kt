@@ -12,7 +12,6 @@ import kotlinx.coroutines.withContext
 class LoadDayMiddleware(
     private val getTrackedForDay: GetTrackedForDayUseCase,
     private val dispatchers: AppDispatchers,
-    private val dayProvider: DayProvider
 ) : Middleware<MainUiState, MainAction, MainEffect> {
 
     override suspend fun invoke(

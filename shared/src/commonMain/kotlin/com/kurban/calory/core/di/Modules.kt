@@ -12,7 +12,6 @@ import com.kurban.calory.features.main.data.local.LocalTrackedFoodDataSource
 import com.kurban.calory.features.main.data.TrackedFoodDataSource
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
-import com.kurban.calory.features.main.domain.DeleteConsumedFoodUseCase
 import com.kurban.calory.features.main.domain.FoodRepository
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
@@ -58,7 +57,6 @@ val domainModule = module {
     single<DayProvider> { DefaultDayProvider() }
 
     factory { SearchFoodUseCase(get(), get<AppDispatchers>().io) }
-    factory { DeleteConsumedFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { AddTrackedFoodUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     factory { GetTrackedForDayUseCase(get(), get<AppDispatchers>().io) }
     factory { DeleteTrackedFoodUseCase(get(), get<AppDispatchers>().io) }
