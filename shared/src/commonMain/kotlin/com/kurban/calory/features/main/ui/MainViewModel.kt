@@ -9,7 +9,10 @@ import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteConsumedFoodUseCase
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
-import com.kurban.calory.features.main.ui.logic.MainMiddlewares
+import com.kurban.calory.features.main.ui.logic.AddFoodMiddleware
+import com.kurban.calory.features.main.ui.logic.LoadDayMiddleware
+import com.kurban.calory.features.main.ui.logic.RemoveEntryMiddleware
+import com.kurban.calory.features.main.ui.logic.SearchMiddleware
 import com.kurban.calory.features.main.ui.logic.mainReducer
 import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainEffect
@@ -23,26 +26,23 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(
-    private val searchFood: SearchFoodUseCase,
-    private val getTrackedForDay: GetTrackedForDayUseCase,
-    private val deleteTrackedFood: DeleteConsumedFoodUseCase,
-    private val addTrackedFoodUseCase: AddTrackedFoodUseCase,
-    private val dispatchers: AppDispatchers,
+    searchFood: SearchFoodUseCase,
+    getTrackedForDay: GetTrackedForDayUseCase,
+    deleteTrackedFood: DeleteConsumedFoodUseCase,
+    addTrackedFoodUseCase: AddTrackedFoodUseCase,
+    dispatchers: AppDispatchers,
     private val dayProvider: DayProvider,
 ) : ViewModel() {
 
     private val store = Store(
         initialState = MainUiState(),
         reducer = mainReducer(),
-        middlewares = MainMiddlewares(
-            searchFood = searchFood,
-            getTrackedForDay = getTrackedForDay,
-            deleteTrackedFood = deleteTrackedFood,
-            addTrackedFoodUseCase = addTrackedFoodUseCase,
-            dispatchers = dispatchers,
-            dayProvider = dayProvider,
-            scope = viewModelScope
-        ).build(),
+        middlewares = listOf(
+            SearchMiddleware(searchFood, dispatchers, viewModelScope),
+            LoadDayMiddleware(getTrackedForDay, dispatchers, dayProvider),
+            AddFoodMiddleware(addTrackedFoodUseCase),
+            RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
+        ),
         scope = viewModelScope
     )
 
