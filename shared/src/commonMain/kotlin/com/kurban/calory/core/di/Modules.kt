@@ -17,8 +17,8 @@ import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
 import com.kurban.calory.features.main.ui.MainViewModel
-import com.kurban.calory.core.time.DayProvider
-import com.kurban.calory.core.time.DefaultDayProvider
+import com.kurban.calory.core.ui.time.DayProvider
+import com.kurban.calory.core.ui.time.DefaultDayProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.core.qualifier.named

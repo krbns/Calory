@@ -3,8 +3,8 @@ package com.kurban.calory.features.main.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kurban.calory.core.domain.AppDispatchers
-import com.kurban.calory.core.mvi.Store
-import com.kurban.calory.core.time.DayProvider
+import com.kurban.calory.core.ui.mvi.Store
+import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
@@ -47,14 +47,16 @@ class MainViewModel(
     val effects: SharedFlow<MainEffect> = store.effects
 
     fun dispatch(intent: MainIntent) {
-        when (intent) {
-            MainIntent.LoadToday -> store.dispatch(MainAction.LoadDay(dayProvider.currentDayId()))
-            is MainIntent.QueryChanged -> store.dispatch(MainAction.QueryChanged(intent.query))
-            is MainIntent.FoodSelected -> store.dispatch(MainAction.FoodSelected(intent.food))
-            is MainIntent.GramsChanged -> store.dispatch(MainAction.GramsChanged(intent.gramsInput))
-            MainIntent.AddSelectedFood -> store.dispatch(MainAction.AddSelectedFood)
-            is MainIntent.RemoveEntry -> store.dispatch(MainAction.RemoveEntry(intent.entryId))
-            MainIntent.ClearError -> store.dispatch(MainAction.ClearError)
-        }
+        store.dispatch(
+            when (intent) {
+                MainIntent.LoadToday -> MainAction.LoadDay(dayProvider.currentDayId())
+                is MainIntent.QueryChanged -> MainAction.QueryChanged(intent.query)
+                is MainIntent.FoodSelected -> MainAction.FoodSelected(intent.food)
+                is MainIntent.GramsChanged -> MainAction.GramsChanged(intent.gramsInput)
+                MainIntent.AddSelectedFood -> MainAction.AddSelectedFood
+                is MainIntent.RemoveEntry -> MainAction.RemoveEntry(intent.entryId)
+                MainIntent.ClearError -> MainAction.ClearError
+            }
+        )
     }
 }

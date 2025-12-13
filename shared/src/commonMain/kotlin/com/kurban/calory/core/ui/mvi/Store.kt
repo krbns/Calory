@@ -1,4 +1,4 @@
-package com.kurban.calory.core.mvi
+package com.kurban.calory.core.ui.mvi
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow

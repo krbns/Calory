@@ -2,7 +2,7 @@ package com.kurban.calory.features.main.domain
 
 import com.kurban.calory.core.domain.CoroutineUseCase
 import com.kurban.calory.features.main.domain.model.TrackedFood
-import com.kurban.calory.core.time.DayProvider
+import com.kurban.calory.core.ui.time.DayProvider
 import kotlinx.coroutines.CoroutineDispatcher
 
 class AddTrackedFoodUseCase(

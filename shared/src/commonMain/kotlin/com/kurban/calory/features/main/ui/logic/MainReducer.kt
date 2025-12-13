@@ -1,6 +1,6 @@
 package com.kurban.calory.features.main.ui.logic
 
-import com.kurban.calory.core.mvi.Reducer
+import com.kurban.calory.core.ui.mvi.Reducer
 import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainUiState
 

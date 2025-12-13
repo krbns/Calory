@@ -1,4 +1,4 @@
-package com.kurban.calory.core.time
+package com.kurban.calory.core.ui.time
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone

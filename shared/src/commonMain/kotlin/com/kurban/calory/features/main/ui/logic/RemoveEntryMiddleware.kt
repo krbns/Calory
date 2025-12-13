@@ -1,7 +1,7 @@
 package com.kurban.calory.features.main.ui.logic
 
-import com.kurban.calory.core.mvi.Middleware
-import com.kurban.calory.core.time.DayProvider
+import com.kurban.calory.core.ui.mvi.Middleware
+import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainEffect
