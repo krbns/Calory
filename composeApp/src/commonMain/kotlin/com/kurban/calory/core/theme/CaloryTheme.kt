@@ -14,7 +14,10 @@ fun CaloryTheme(
     content: @Composable () -> Unit
 ) {
     val colors: ColorScheme = if (darkTheme) DarkColors else LightColors
-    CompositionLocalProvider(LocalSpacing provides Spacing()) {
+    CompositionLocalProvider(
+        LocalSpacing provides Spacing(),
+        LocalElevation provides Elevation()
+    ) {
         MaterialTheme(
             colorScheme = colors,
             typography = MaterialTheme.typography,

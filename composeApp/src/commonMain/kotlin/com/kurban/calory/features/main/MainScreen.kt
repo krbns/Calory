@@ -79,6 +79,7 @@ import calory.composeapp.generated.resources.subtitle
 import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
 import com.kurban.calory.core.theme.CaloryTheme
+import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.ui.MainViewModel
@@ -272,7 +273,7 @@ private fun SummaryCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.elevation.large)
     ) {
         Column(modifier = Modifier.padding(MaterialTheme.spacing.extraLarge)) {
             Text(
@@ -419,7 +420,7 @@ private fun SelectionSection(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.elevation.medium)
     ) {
         Column(
             modifier = Modifier.padding(MaterialTheme.spacing.large),
@@ -586,7 +587,7 @@ private fun ErrorCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.errorContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.elevation.large)
     ) {
         Row(
             modifier = Modifier
