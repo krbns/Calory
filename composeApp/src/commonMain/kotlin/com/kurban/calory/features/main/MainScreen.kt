@@ -79,6 +79,7 @@ import calory.composeapp.generated.resources.subtitle
 import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
 import com.kurban.calory.core.theme.CaloryTheme
+import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.ui.model.MainEffect
@@ -170,8 +171,8 @@ private fun MainContent(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.large),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
                 ) {
                     Header()
                     SummaryCard(
@@ -191,7 +192,7 @@ private fun MainContent(
                     visible = errorMessage != null,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(16.dp),
+                        .padding(MaterialTheme.spacing.large),
                     enter = fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing)),
                     exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
                 ) {
@@ -207,9 +208,9 @@ private fun MainContent(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.small)
                         .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
                 ) {
                     Text(
                         text = stringResource(Res.string.add_to_diary),
@@ -235,7 +236,7 @@ private fun MainContent(
                             }
                         }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
                 }
             }
         }
@@ -273,13 +274,13 @@ private fun SummaryCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(MaterialTheme.spacing.extraLarge)) {
             Text(
                 text = stringResource(Res.string.today),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.small))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -297,7 +298,7 @@ private fun SummaryCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)) {
                     MacroPill(stringResource(Res.string.macro_protein_short), proteins, MaterialTheme.colorScheme.secondary)
                     MacroPill(stringResource(Res.string.macro_fat_short), fats, MaterialTheme.colorScheme.tertiary)
                     MacroPill(stringResource(Res.string.macro_carb_short), carbs, MaterialTheme.colorScheme.primary)
@@ -314,7 +315,7 @@ private fun MacroPill(label: String, value: Double, color: Color) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(color.copy(alpha = 0.15f))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.compact)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelMedium, color = color)
         Text(
@@ -333,7 +334,7 @@ private fun SearchSection(
     onQueryChanged: (String) -> Unit,
     onSelect: (Food) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChanged,
@@ -353,7 +354,7 @@ private fun SearchSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
                 items(itemsToShow) { food ->
                     FoodRow(food = food, onSelect = { onSelect(food) })
@@ -376,9 +377,9 @@ private fun FoodRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.compact),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -420,7 +421,10 @@ private fun SelectionSection(
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(
+            modifier = Modifier.padding(MaterialTheme.spacing.large),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.compact)
+        ) {
             Text(
                 text = stringResource(Res.string.add_to_diary),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -441,7 +445,7 @@ private fun SelectionSection(
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
             ) {
                 OutlinedTextField(
                     value = gramsInput,
@@ -476,8 +480,8 @@ private fun ConsumptionList(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(MaterialTheme.spacing.large),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -506,7 +510,7 @@ private fun ConsumptionList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
                 ) {
                     items(items, key = { it.entryId }) { item ->
                         ConsumptionRow(item, onRemove)
@@ -527,9 +531,9 @@ private fun ConsumptionRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-            .padding(12.dp),
+            .padding(MaterialTheme.spacing.medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         Box(
             modifier = Modifier
@@ -586,7 +590,7 @@ private fun ErrorCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = MaterialTheme.spacing.large, vertical = MaterialTheme.spacing.extraLarge)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
