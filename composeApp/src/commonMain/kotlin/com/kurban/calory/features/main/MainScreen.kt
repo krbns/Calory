@@ -175,10 +175,10 @@ private fun MainContent(
                 ) {
                     Header()
                     SummaryCard(
-                        calories = state.totalCalories.roundToInt().toDouble(),
-                        proteins = state.totalProteins.roundToInt().toDouble(),
-                        fats = state.totalFats.roundToInt().toDouble(),
-                        carbs = state.totalCarbs.roundToInt().toDouble()
+                        calories = state.totalCalories,
+                        proteins = state.totalProteins,
+                        fats = state.totalFats,
+                        carbs = state.totalCarbs
                     )
                     ConsumptionList(
                         items = state.tracked,

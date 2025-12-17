@@ -10,6 +10,7 @@ import com.kurban.calory.features.main.data.FoodDataSource
 import com.kurban.calory.features.main.data.local.LocalFoodDataSource
 import com.kurban.calory.features.main.data.local.LocalTrackedFoodDataSource
 import com.kurban.calory.features.main.data.TrackedFoodDataSource
+import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.FoodRepository
@@ -60,8 +61,9 @@ val domainModule = module {
     factory { AddTrackedFoodUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     factory { GetTrackedForDayUseCase(get(), get<AppDispatchers>().io) }
     factory { DeleteTrackedFoodUseCase(get(), get<AppDispatchers>().io) }
+    factory { CalculateTotalsUseCase() }
 }
 
 val uiModule = module {
-    factory { MainViewModel(get(), get(), get(), get(), get(), get()) }
+    factory { MainViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }

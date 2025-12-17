@@ -3,7 +3,7 @@ package com.kurban.calory.core.data.db
 import android.content.Context
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import app.cash.sqldelight.db.SqlDriver
-import sqldelight.dbscheme.FoodDatabase
+import sqldelight.foodScheme.food.FoodDatabase
 
 actual typealias DriverContext = Context
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.kurban.calory.core.domain.AppDispatchers
 import com.kurban.calory.core.ui.mvi.Store
 import com.kurban.calory.core.ui.time.DayProvider
+import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
@@ -26,6 +27,7 @@ class MainViewModel(
     getTrackedForDay: GetTrackedForDayUseCase,
     deleteTrackedFood: DeleteTrackedFoodUseCase,
     addTrackedFoodUseCase: AddTrackedFoodUseCase,
+    calculateTotalsUseCase: CalculateTotalsUseCase,
     dispatchers: AppDispatchers,
     private val dayProvider: DayProvider,
 ) : ViewModel() {
@@ -35,7 +37,7 @@ class MainViewModel(
         reducer = mainReducer(),
         middlewares = listOf(
             SearchMiddleware(searchFood, dispatchers, viewModelScope),
-            LoadDayMiddleware(getTrackedForDay, dispatchers),
+            LoadDayMiddleware(getTrackedForDay, dispatchers, calculateTotalsUseCase),
             AddFoodMiddleware(addTrackedFoodUseCase),
             RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
         ),

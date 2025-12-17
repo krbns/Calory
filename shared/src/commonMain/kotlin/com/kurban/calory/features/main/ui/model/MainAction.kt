@@ -1,6 +1,7 @@
 package com.kurban.calory.features.main.ui.model
 
 import com.kurban.calory.features.main.domain.model.Food
+import com.kurban.calory.features.main.domain.model.MacroTotals
 
 sealed class MainAction {
     data class QueryChanged(val query: String) : MainAction()
@@ -23,10 +24,3 @@ sealed class MainAction {
     data class RemoveEntryFailure(val message: String) : MainAction()
     object ClearError : MainAction()
 }
-
-data class MacroTotals(
-    val calories: Double = 0.0,
-    val proteins: Double = 0.0,
-    val fats: Double = 0.0,
-    val carbs: Double = 0.0
-)
