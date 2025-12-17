@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,25 +24,30 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +65,7 @@ import calory.composeapp.generated.resources.dismiss
 import calory.composeapp.generated.resources.empty_list
 import calory.composeapp.generated.resources.food_macros_100
 import calory.composeapp.generated.resources.food_macros_entry
+import calory.composeapp.generated.resources.grams_total
 import calory.composeapp.generated.resources.macro_carb_short
 import calory.composeapp.generated.resources.macro_fat_short
 import calory.composeapp.generated.resources.macro_protein_short
@@ -72,14 +78,14 @@ import calory.composeapp.generated.resources.select
 import calory.composeapp.generated.resources.subtitle
 import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
-import calory.composeapp.generated.resources.grams_total
 import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.features.main.domain.model.Food
-import com.kurban.calory.features.main.ui.model.UITrackedFood
-import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
+import com.kurban.calory.features.main.ui.model.MainUiState
+import com.kurban.calory.features.main.ui.model.UITrackedFood
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -132,6 +138,9 @@ private fun MainContent(
     onErrorDismiss: () -> Unit
 ) {
     CaloryTheme {
+        var isSheetOpen by remember { mutableStateOf(false) }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val scope = rememberCoroutineScope()
         val colors = MaterialTheme.colorScheme
         val surfaceGradient = remember {
             Brush.linearGradient(
@@ -143,7 +152,14 @@ private fun MainContent(
         }
         Scaffold(
             modifier = modifier.fillMaxSize(),
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { isSheetOpen = true },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text(stringResource(Res.string.add_to_diary)) }
+                )
+            }
         ) { padding ->
             Box(
                 modifier = Modifier
@@ -159,27 +175,15 @@ private fun MainContent(
                 ) {
                     Header()
                     SummaryCard(
-                        calories = state.totalCalories,
-                        proteins = state.totalProteins,
-                        fats = state.totalFats,
-                        carbs = state.totalCarbs
-                    )
-                    SearchSection(
-                        query = state.query,
-                        results = state.searchResults,
-                        isSearching = state.isSearching,
-                        onQueryChanged = onQueryChanged,
-                        onSelect = onSelectFood
-                    )
-                    SelectionSection(
-                        selected = state.selectedFood,
-                        gramsInput = state.gramsInput,
-                        onGramsChanged = onGramsChanged,
-                        onAdd = onAddFood
+                        calories = state.totalCalories.roundToInt().toDouble(),
+                        proteins = state.totalProteins.roundToInt().toDouble(),
+                        fats = state.totalFats.roundToInt().toDouble(),
+                        carbs = state.totalCarbs.roundToInt().toDouble()
                     )
                     ConsumptionList(
                         items = state.tracked,
-                        onRemove = onRemoveEntry
+                        onRemove = onRemoveEntry,
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -192,6 +196,46 @@ private fun MainContent(
                     exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
                 ) {
                     ErrorCard(message = errorMessage.orEmpty(), onDismiss = onErrorDismiss)
+                }
+            }
+        }
+
+        if (isSheetOpen) {
+            ModalBottomSheet(
+                onDismissRequest = { isSheetOpen = false },
+                sheetState = sheetState
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.add_to_diary),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    SearchSection(
+                        query = state.query,
+                        results = state.searchResults,
+                        isSearching = state.isSearching,
+                        onQueryChanged = onQueryChanged,
+                        onSelect = onSelectFood
+                    )
+                    SelectionSection(
+                        selected = state.selectedFood,
+                        gramsInput = state.gramsInput,
+                        onGramsChanged = onGramsChanged,
+                        onAdd = {
+                            onAddFood()
+                            scope.launch {
+                                sheetState.hide()
+                                isSheetOpen = false
+                            }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -421,15 +465,18 @@ private fun SelectionSection(
 @Composable
 private fun ConsumptionList(
     items: List<UITrackedFood>,
-    onRemove: (Long) -> Unit
+    onRemove: (Long) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -458,7 +505,7 @@ private fun ConsumptionList(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 260.dp),
+                        .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(items, key = { it.entryId }) { item ->
