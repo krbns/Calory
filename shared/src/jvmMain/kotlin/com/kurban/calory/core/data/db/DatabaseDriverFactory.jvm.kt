@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import sqldelight.foodScheme.food.FoodDatabase
 import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
+import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
 actual class DriverContext
 
@@ -19,6 +20,12 @@ actual class DatabaseDriverFactory actual constructor(
     actual fun createDriverForTrackedDatabase(): SqlDriver {
         val driver = JdbcSqliteDriver("jdbc:sqlite:tracked.db")
         runCatching { TrackedFoodDatabase.Schema.create(driver) }
+        return driver
+    }
+
+    actual fun createDriverForUserProfileDatabase(): SqlDriver {
+        val driver = JdbcSqliteDriver("jdbc:sqlite:userProfile.db")
+        runCatching { UserProfileDatabase.Schema.create(driver) }
         return driver
     }
 }

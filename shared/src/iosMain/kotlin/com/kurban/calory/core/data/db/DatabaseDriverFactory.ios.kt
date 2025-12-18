@@ -2,8 +2,9 @@ package com.kurban.calory.core.data.db
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
-import sqldelight.dbscheme.food.FoodDatabase
-import sqldelight.dbscheme.tracked.TrackedFoodDatabase
+import sqldelight.foodScheme.food.FoodDatabase
+import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
+import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
 actual class DriverContext
 
@@ -16,5 +17,9 @@ actual class DatabaseDriverFactory actual constructor(
 
     actual fun createDriverForTrackedDatabase(): SqlDriver {
         return NativeSqliteDriver(TrackedFoodDatabase.Schema, "trackedFood.db")
+    }
+
+    actual fun createDriverForUserProfileDatabase(): SqlDriver {
+        return NativeSqliteDriver(UserProfileDatabase.Schema, "userProfile.db")
     }
 }

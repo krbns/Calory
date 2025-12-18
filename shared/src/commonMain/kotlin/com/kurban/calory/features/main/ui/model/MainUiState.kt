@@ -1,6 +1,7 @@
 package com.kurban.calory.features.main.ui.model
 
 import com.kurban.calory.features.main.domain.model.Food
+import com.kurban.calory.features.profile.domain.model.MacroTargets
 
 data class MainUiState(
     val query: String = "",
@@ -12,5 +13,6 @@ data class MainUiState(
     val totalCalories: Double = 0.0,
     val totalProteins: Double = 0.0,
     val totalFats: Double = 0.0,
-    val totalCarbs: Double = 0.0
+    val totalCarbs: Double = 0.0,
+    val macroTargets: MacroTargets? = null
 )

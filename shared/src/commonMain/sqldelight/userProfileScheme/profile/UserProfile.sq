@@ -1,0 +1,15 @@
+CREATE TABLE UserProfileEntity(
+    id INTEGER NOT NULL PRIMARY KEY,
+    sex TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    heightCm INTEGER NOT NULL,
+    weightKg REAL NOT NULL,
+    goal TEXT NOT NULL
+);
+
+selectProfile:
+SELECT * FROM UserProfileEntity WHERE id = 1;
+
+upsertProfile:
+INSERT OR REPLACE INTO UserProfileEntity(id, sex, age, heightCm, weightKg, goal)
+VALUES (1, ?, ?, ?, ?, ?);

@@ -72,6 +72,7 @@ import calory.composeapp.generated.resources.macro_protein_short
 import calory.composeapp.generated.resources.meals_today
 import calory.composeapp.generated.resources.pick_from_search
 import calory.composeapp.generated.resources.portion_grams
+import calory.composeapp.generated.resources.profile_open
 import calory.composeapp.generated.resources.remove
 import calory.composeapp.generated.resources.search_foods
 import calory.composeapp.generated.resources.select
@@ -82,6 +83,7 @@ import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.main.domain.model.Food
+import com.kurban.calory.features.profile.domain.model.MacroTargets
 import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
@@ -98,6 +100,7 @@ import kotlin.math.roundToInt
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    onOpenProfile: () -> Unit = {},
 ) {
     val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsState()
@@ -122,6 +125,7 @@ fun MainScreen(
         onErrorDismiss = {
             viewModel.dispatch(MainIntent.ClearError)
         },
+        onOpenProfile = onOpenProfile,
         modifier = modifier
     )
 }
@@ -137,7 +141,8 @@ private fun MainContent(
     onGramsChanged: (String) -> Unit,
     onAddFood: () -> Unit,
     onRemoveEntry: (Long) -> Unit,
-    onErrorDismiss: () -> Unit
+    onErrorDismiss: () -> Unit,
+    onOpenProfile: () -> Unit
 ) {
     CaloryTheme {
         var isSheetOpen by remember { mutableStateOf(false) }
@@ -175,12 +180,13 @@ private fun MainContent(
                         .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.large),
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
                 ) {
-                    Header()
+                    Header(onOpenProfile = onOpenProfile)
                     SummaryCard(
                         calories = state.totalCalories,
                         proteins = state.totalProteins,
                         fats = state.totalFats,
-                        carbs = state.totalCarbs
+                        carbs = state.totalCarbs,
+                        targets = state.macroTargets
                     )
                     ConsumptionList(
                         items = state.tracked,
@@ -245,13 +251,22 @@ private fun MainContent(
 }
 
 @Composable
-private fun Header() {
+private fun Header(onOpenProfile: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(Res.string.app_title),
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.app_title),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            TextButton(onClick = onOpenProfile) {
+                Text(stringResource(Res.string.profile_open))
+            }
+        }
         Text(
             text = stringResource(Res.string.subtitle),
             style = MaterialTheme.typography.bodyMedium,
@@ -266,6 +281,7 @@ private fun SummaryCard(
     proteins: Double,
     fats: Double,
     carbs: Double,
+    targets: MacroTargets?,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -289,7 +305,7 @@ private fun SummaryCard(
             ) {
                 Column {
                     Text(
-                        text = "${calories.roundToOne()} ккал",
+                        text = buildMacroText(calories, targets?.calories, "ккал"),
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -300,9 +316,24 @@ private fun SummaryCard(
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)) {
-                    MacroPill(stringResource(Res.string.macro_protein_short), proteins, MaterialTheme.colorScheme.secondary)
-                    MacroPill(stringResource(Res.string.macro_fat_short), fats, MaterialTheme.colorScheme.tertiary)
-                    MacroPill(stringResource(Res.string.macro_carb_short), carbs, MaterialTheme.colorScheme.primary)
+                    MacroPill(
+                        label = stringResource(Res.string.macro_protein_short),
+                        value = proteins,
+                        target = targets?.proteins,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    MacroPill(
+                        label = stringResource(Res.string.macro_fat_short),
+                        value = fats,
+                        target = targets?.fats,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    MacroPill(
+                        label = stringResource(Res.string.macro_carb_short),
+                        value = carbs,
+                        target = targets?.carbs,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
@@ -310,7 +341,7 @@ private fun SummaryCard(
 }
 
 @Composable
-private fun MacroPill(label: String, value: Double, color: Color) {
+private fun MacroPill(label: String, value: Double, target: Double?, color: Color) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -320,10 +351,20 @@ private fun MacroPill(label: String, value: Double, color: Color) {
     ) {
         Text(text = label, style = MaterialTheme.typography.labelMedium, color = color)
         Text(
-            text = value.roundToOne(),
+            text = buildMacroText(value, target),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onBackground
         )
+    }
+}
+
+private fun buildMacroText(value: Double, target: Double?, suffix: String = ""): String {
+    val valueText = value.roundToOne()
+    val targetText = target?.roundToOne()
+    return if (targetText != null) {
+        if (suffix.isNotBlank()) "$valueText / $targetText $suffix" else "$valueText / $targetText"
+    } else {
+        if (suffix.isNotBlank()) "$valueText $suffix" else valueText
     }
 }
 
@@ -633,7 +674,13 @@ fun MainScreenPreview() {
             totalCalories = 436.8,
             totalProteins = 63.3,
             totalFats = 7.6,
-            totalCarbs = 27.6
+            totalCarbs = 27.6,
+            macroTargets = MacroTargets(
+                calories = 2300.0,
+                proteins = 140.0,
+                fats = 70.0,
+                carbs = 260.0
+            )
         )
     }
 
@@ -645,6 +692,7 @@ fun MainScreenPreview() {
         onGramsChanged = {},
         onAddFood = {},
         onRemoveEntry = {},
-        onErrorDismiss = {}
+        onErrorDismiss = {},
+        onOpenProfile = {}
     )
 }

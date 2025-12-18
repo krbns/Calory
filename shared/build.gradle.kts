@@ -73,5 +73,9 @@ sqldelight {
             packageName.set("sqldelight.trackedFoodScheme.tracked")
             srcDirs.from("src/commonMain/sqldelight/trackedFoodScheme")
         }
+        create("UserProfileDatabase") {
+            packageName.set("sqldelight.userProfileScheme.profile")
+            srcDirs.from("src/commonMain/sqldelight/userProfileScheme")
+        }
     }
 }

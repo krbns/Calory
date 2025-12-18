@@ -8,8 +8,6 @@ import androidx.compose.ui.window.rememberWindowState
 import com.kurban.calory.core.data.db.DatabaseDriverFactory
 import com.kurban.calory.core.data.db.DriverContext
 import com.kurban.calory.core.di.initKoin
-import com.kurban.calory.features.main.ui.MainViewModel
-import com.kurban.calory.features.main.MainScreen
 
 fun main() = application {
     initKoin(DatabaseDriverFactory(DriverContext()))
@@ -18,6 +16,6 @@ fun main() = application {
         title = "Calory",
         state = rememberWindowState(width = 420.dp, height = 760.dp)
     ) {
-        MainScreen()
+        AppRoot()
     }
 }

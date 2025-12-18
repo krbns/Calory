@@ -24,6 +24,7 @@ fun mainReducer(): Reducer<MainUiState, MainAction> = { state, action ->
             totalFats = action.totals.fats,
             totalCarbs = action.totals.carbs
         )
+        is MainAction.LoadProfileSuccess -> state.copy(macroTargets = action.targets)
         else -> state
     }
 }

@@ -8,4 +8,6 @@ expect class DatabaseDriverFactory(driverContext: DriverContext) {
     fun createDriverForFoodDatabase(): SqlDriver
 
     fun createDriverForTrackedDatabase(): SqlDriver
+
+    fun createDriverForUserProfileDatabase(): SqlDriver
 }

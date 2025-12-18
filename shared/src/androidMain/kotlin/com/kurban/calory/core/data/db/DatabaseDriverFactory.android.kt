@@ -4,6 +4,8 @@ import android.content.Context
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import app.cash.sqldelight.db.SqlDriver
 import sqldelight.foodScheme.food.FoodDatabase
+import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
+import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
 actual typealias DriverContext = Context
 
@@ -15,6 +17,22 @@ actual class DatabaseDriverFactory actual constructor(
             FoodDatabase.Schema,
             driverContext,
             "food.db"
+        )
+    }
+
+    actual fun createDriverForTrackedDatabase(): SqlDriver {
+        return AndroidSqliteDriver(
+            TrackedFoodDatabase.Schema,
+            driverContext,
+            "trackedFood.db"
+        )
+    }
+
+    actual fun createDriverForUserProfileDatabase(): SqlDriver {
+        return AndroidSqliteDriver(
+            UserProfileDatabase.Schema,
+            driverContext,
+            "userProfile.db"
         )
     }
 }
