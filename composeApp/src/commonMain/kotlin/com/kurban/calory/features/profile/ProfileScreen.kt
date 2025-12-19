@@ -88,8 +88,8 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.large),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
+                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.small),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -176,7 +176,9 @@ fun ProfileScreen(
                     Button(
                         onClick = viewModel::save,
                         enabled = !state.isSaving,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
                     ) {
                         Text(stringResource(Res.string.profile_save))
                     }
@@ -215,7 +217,7 @@ private fun ProfileCard(content: @Composable () -> Unit) {
     ) {
         Column(
             modifier = Modifier.padding(MaterialTheme.spacing.large),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             content()
         }

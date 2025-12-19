@@ -298,43 +298,40 @@ private fun SummaryCard(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(MaterialTheme.spacing.small))
+            Text(
+                text = buildMacroText(calories, targets?.calories, "ккал"),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = stringResource(Res.string.total_consumed),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(MaterialTheme.spacing.medium))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = buildMacroText(calories, targets?.calories, "ккал"),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(Res.string.total_consumed),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)) {
-                    MacroPill(
-                        label = stringResource(Res.string.macro_protein_short),
-                        value = proteins,
-                        target = targets?.proteins,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                    MacroPill(
-                        label = stringResource(Res.string.macro_fat_short),
-                        value = fats,
-                        target = targets?.fats,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                    MacroPill(
-                        label = stringResource(Res.string.macro_carb_short),
-                        value = carbs,
-                        target = targets?.carbs,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                MacroPill(
+                    label = stringResource(Res.string.macro_protein_short),
+                    value = proteins,
+                    target = targets?.proteins,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                MacroPill(
+                    label = stringResource(Res.string.macro_fat_short),
+                    value = fats,
+                    target = targets?.fats,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+                MacroPill(
+                    label = stringResource(Res.string.macro_carb_short),
+                    value = carbs,
+                    target = targets?.carbs,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }
