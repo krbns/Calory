@@ -25,6 +25,7 @@ import com.kurban.calory.features.profile.data.UserProfileDataSource
 import com.kurban.calory.features.profile.data.local.LocalUserProfileDataSource
 import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
 import com.kurban.calory.features.profile.domain.GetUserProfileUseCase
+import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.SaveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.UserProfileRepository
 import com.kurban.calory.features.profile.ui.ProfileViewModel
@@ -83,6 +84,7 @@ val domainModule = module {
     factory { CalculateMacroTargetsUseCase() }
     factory { GetUserProfileUseCase(get(), get<AppDispatchers>().io) }
     factory { SaveUserProfileUseCase(get(), get<AppDispatchers>().io) }
+    factory { ObserveUserProfileUseCase(get(), get<AppDispatchers>().io) }
 }
 
 val uiModule = module {

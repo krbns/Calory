@@ -9,7 +9,7 @@ sealed class MainAction {
     data class FoodSelected(val food: Food) : MainAction()
     data class GramsChanged(val gramsInput: String) : MainAction()
     data class LoadDay(val dayId: String) : MainAction()
-    object LoadProfile : MainAction()
+    object ObserveProfile : MainAction()
     object AddSelectedFood : MainAction()
     data class RemoveEntry(val entryId: Long) : MainAction()
 

@@ -4,6 +4,11 @@ import com.kurban.calory.features.profile.data.UserProfileDataSource
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserProfile
 import com.kurban.calory.features.profile.domain.model.UserSex
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToOneOrNull
+import kotlinx.coroutines.CoroutineDispatcher
 import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
 class LocalUserProfileDataSource(
@@ -32,6 +37,25 @@ class LocalUserProfileDataSource(
             weightKg = profile.weightKg,
             goal = profile.goal.name
         )
+    }
+
+    override fun observeProfile(dispatcher: CoroutineDispatcher): Flow<UserProfile?> {
+        return database.userProfileQueries.selectProfile()
+            .asFlow()
+            .mapToOneOrNull(dispatcher)
+            .map { entity ->
+                if (entity == null) return@map null
+                val sex = entity.sex.toUserSex() ?: return@map null
+                val goal = entity.goal.toUserGoal() ?: return@map null
+
+                UserProfile(
+                    sex = sex,
+                    age = entity.age.toInt(),
+                    heightCm = entity.heightCm.toInt(),
+                    weightKg = entity.weightKg,
+                    goal = goal
+                )
+            }
     }
 }
 

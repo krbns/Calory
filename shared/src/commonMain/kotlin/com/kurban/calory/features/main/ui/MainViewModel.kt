@@ -20,19 +20,19 @@ import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
 import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
-import com.kurban.calory.features.profile.domain.GetUserProfileUseCase
-import com.kurban.calory.features.profile.ui.logic.LoadUserProfileMiddleware
+import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
+import com.kurban.calory.features.profile.ui.logic.ObserveUserProfileMiddleware
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(
     searchFood: SearchFoodUseCase,
     getTrackedForDay: GetTrackedForDayUseCase,
-    getUserProfile: GetUserProfileUseCase,
     deleteTrackedFood: DeleteTrackedFoodUseCase,
     addTrackedFoodUseCase: AddTrackedFoodUseCase,
     calculateTotalsUseCase: CalculateTotalsUseCase,
     calculateMacroTargetsUseCase: CalculateMacroTargetsUseCase,
+    observeUserProfileUseCase: ObserveUserProfileUseCase,
     dispatchers: AppDispatchers,
     private val dayProvider: DayProvider,
 ) : ViewModel() {
@@ -43,14 +43,14 @@ class MainViewModel(
         middlewares = listOf(
             SearchMiddleware(searchFood, dispatchers, viewModelScope),
             LoadDayMiddleware(getTrackedForDay, dispatchers, calculateTotalsUseCase),
-            LoadUserProfileMiddleware(getUserProfile, calculateMacroTargetsUseCase, dispatchers),
+            ObserveUserProfileMiddleware(observeUserProfileUseCase, calculateMacroTargetsUseCase, viewModelScope),
             AddFoodMiddleware(addTrackedFoodUseCase),
             RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
         ),
         scope = viewModelScope,
         initialActions = listOf(
             MainAction.LoadDay(dayProvider.currentDayId()),
-            MainAction.LoadProfile
+            MainAction.ObserveProfile
         )
     )
 
