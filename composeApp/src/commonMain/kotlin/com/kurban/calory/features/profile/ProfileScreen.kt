@@ -25,8 +25,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -53,6 +57,8 @@ import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserSex
 import com.kurban.calory.features.profile.ui.ProfileViewModel
+import com.kurban.calory.features.profile.ui.model.ProfileEffect
+import com.kurban.calory.features.profile.ui.model.ProfileIntent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,6 +71,15 @@ fun ProfileScreen(
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val state by viewModel.uiState.collectAsState()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is ProfileEffect.Error -> errorMessage = effect.message
+            }
+        }
+    }
 
     CaloryTheme {
         val colors = MaterialTheme.colorScheme
@@ -124,12 +139,12 @@ fun ProfileScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
                             FilterChip(
                                 selected = state.sex == UserSex.MALE,
-                                onClick = { viewModel.onSexSelected(UserSex.MALE) },
+                                onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
                                 label = { Text(stringResource(Res.string.profile_sex_male)) }
                             )
                             FilterChip(
                                 selected = state.sex == UserSex.FEMALE,
-                                onClick = { viewModel.onSexSelected(UserSex.FEMALE) },
+                                onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
                                 label = { Text(stringResource(Res.string.profile_sex_female)) }
                             )
                         }
@@ -138,12 +153,12 @@ fun ProfileScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
                             FilterChip(
                                 selected = state.goal == UserGoal.GAIN_MUSCLE,
-                                onClick = { viewModel.onGoalSelected(UserGoal.GAIN_MUSCLE) },
+                                onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
                                 label = { Text(stringResource(Res.string.profile_goal_gain)) }
                             )
                             FilterChip(
                                 selected = state.goal == UserGoal.LOSE_WEIGHT,
-                                onClick = { viewModel.onGoalSelected(UserGoal.LOSE_WEIGHT) },
+                                onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
                                 label = { Text(stringResource(Res.string.profile_goal_lose)) }
                             )
                         }
@@ -151,7 +166,7 @@ fun ProfileScreen(
                         ProfileSectionTitle(stringResource(Res.string.profile_age))
                         OutlinedTextField(
                             value = state.ageInput,
-                            onValueChange = viewModel::onAgeChanged,
+                            onValueChange = { viewModel.dispatch(ProfileIntent.AgeChanged(it)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -159,7 +174,7 @@ fun ProfileScreen(
                         ProfileSectionTitle(stringResource(Res.string.profile_height))
                         OutlinedTextField(
                             value = state.heightInput,
-                            onValueChange = viewModel::onHeightChanged,
+                            onValueChange = { viewModel.dispatch(ProfileIntent.HeightChanged(it)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -167,14 +182,14 @@ fun ProfileScreen(
                         ProfileSectionTitle(stringResource(Res.string.profile_weight))
                         OutlinedTextField(
                             value = state.weightInput,
-                            onValueChange = viewModel::onWeightChanged,
+                            onValueChange = { viewModel.dispatch(ProfileIntent.WeightChanged(it)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
                     }
 
                     Button(
-                        onClick = viewModel::save,
+                        onClick = { viewModel.dispatch(ProfileIntent.Save) },
                         enabled = !state.isSaving,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -192,9 +207,10 @@ fun ProfileScreen(
                         )
                     }
 
-                    if (state.errorMessage != null) {
+                    val message = errorMessage ?: state.errorMessage
+                    if (message != null) {
                         Text(
-                            text = state.errorMessage.orEmpty(),
+                            text = message,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error
                         )

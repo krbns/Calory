@@ -1,4 +1,4 @@
-package com.kurban.calory.features.profile.ui
+package com.kurban.calory.features.profile.ui.model
 
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserSex
