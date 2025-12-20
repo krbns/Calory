@@ -2,6 +2,7 @@ package com.kurban.calory.features.main.data
 
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
 import com.kurban.calory.features.main.domain.model.TrackedFood
+import kotlinx.coroutines.CoroutineDispatcher
 
 class DefaultTrackedFoodRepository(
     private val dataSource: TrackedFoodDataSource
@@ -13,6 +14,9 @@ class DefaultTrackedFoodRepository(
     override suspend fun getByDay(dayId: String): List<TrackedFood> {
         return dataSource.getByDay(dayId)
     }
+
+    override fun observeByDay(dayId: String, dispatcher: CoroutineDispatcher) =
+        dataSource.observeByDay(dayId, dispatcher)
 
     override suspend fun delete(id: Long) {
         dataSource.delete(id)

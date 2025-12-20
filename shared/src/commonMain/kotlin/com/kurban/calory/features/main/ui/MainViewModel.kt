@@ -8,10 +8,10 @@ import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
-import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
+import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.ui.logic.AddFoodMiddleware
-import com.kurban.calory.features.main.ui.logic.LoadDayMiddleware
+import com.kurban.calory.features.main.ui.logic.ObserveDayMiddleware
 import com.kurban.calory.features.main.ui.logic.RemoveEntryMiddleware
 import com.kurban.calory.features.main.ui.logic.SearchMiddleware
 import com.kurban.calory.features.main.ui.logic.mainReducer
@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(
     searchFood: SearchFoodUseCase,
-    getTrackedForDay: GetTrackedForDayUseCase,
+    observeTrackedForDayUseCase: ObserveTrackedForDayUseCase,
     deleteTrackedFood: DeleteTrackedFoodUseCase,
     addTrackedFoodUseCase: AddTrackedFoodUseCase,
     calculateTotalsUseCase: CalculateTotalsUseCase,
@@ -42,7 +42,7 @@ class MainViewModel(
         reducer = mainReducer(),
         middlewares = listOf(
             SearchMiddleware(searchFood, dispatchers, viewModelScope),
-            LoadDayMiddleware(getTrackedForDay, dispatchers, calculateTotalsUseCase),
+            ObserveDayMiddleware(observeTrackedForDayUseCase, calculateTotalsUseCase, dispatchers, viewModelScope),
             ObserveUserProfileMiddleware(observeUserProfileUseCase, calculateMacroTargetsUseCase, viewModelScope),
             AddFoodMiddleware(addTrackedFoodUseCase),
             RemoveEntryMiddleware(deleteTrackedFood, dayProvider)

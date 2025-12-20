@@ -1,0 +1,21 @@
+CREATE TABLE CustomFoodEntity(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    calories REAL NOT NULL,
+    proteins REAL NOT NULL,
+    fats REAL NOT NULL,
+    carbs REAL NOT NULL
+);
+
+insertCustomFood:
+INSERT INTO CustomFoodEntity(name, calories, proteins, fats, carbs)
+VALUES (?, ?, ?, ?, ?);
+
+selectAllCustomFoods:
+SELECT * FROM CustomFoodEntity ORDER BY name COLLATE NOCASE;
+
+selectCustomFoodById:
+SELECT * FROM CustomFoodEntity WHERE id = ?;
+
+selectCustomFoodByName:
+SELECT * FROM CustomFoodEntity WHERE name = ?;

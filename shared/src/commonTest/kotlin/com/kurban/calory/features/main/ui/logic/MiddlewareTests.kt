@@ -4,7 +4,7 @@ import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
-import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
+import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.domain.model.TrackedFood
@@ -62,22 +62,21 @@ class MiddlewareTests {
     }
 
     @Test
-    fun `LoadDayMiddleware emits LoadDaySuccess`() = runTest(testDispatcher) {
+    fun `ObserveDayMiddleware emits LoadDaySuccess from flow`() = runTest(testDispatcher) {
         val tracked = listOf(
             TrackedFood(1, 1, "Apple", 100, 52.0, 0.3, 0.2, 14.0, "day", 0L)
         )
-        val getTrackedForDay = GetTrackedForDayUseCase(
-            repository = object : com.kurban.calory.features.main.domain.TrackedFoodRepository {
-                override suspend fun add(food: TrackedFood) {}
-                override suspend fun getByDay(dayId: String): List<TrackedFood> = tracked
-                override suspend fun delete(id: Long) {}
-            },
-            dispatcher = dispatchers.io
-        )
-        val middleware = LoadDayMiddleware(
-            getTrackedForDay = getTrackedForDay,
+        val repository = object : com.kurban.calory.features.main.domain.TrackedFoodRepository {
+            override suspend fun add(food: TrackedFood) {}
+            override suspend fun getByDay(dayId: String): List<TrackedFood> = tracked
+            override fun observeByDay(dayId: String, dispatcher: CoroutineDispatcher): Flow<List<TrackedFood>> = flowOf(tracked)
+            override suspend fun delete(id: Long) {}
+        }
+        val middleware = ObserveDayMiddleware(
+            observeTrackedForDay = ObserveTrackedForDayUseCase(repository, dispatchers.io),
+            calculateTotals = CalculateTotalsUseCase(),
             dispatchers = dispatchers,
-            calculateTotals = CalculateTotalsUseCase()
+            scope = scope
         )
         val actions = Channel<MainAction>(Channel.UNLIMITED)
 
@@ -99,6 +98,7 @@ class MiddlewareTests {
             repository = object : com.kurban.calory.features.main.domain.TrackedFoodRepository {
                 override suspend fun add(food: TrackedFood) {}
                 override suspend fun getByDay(dayId: String): List<TrackedFood> = emptyList()
+                override fun observeByDay(dayId: String, dispatcher: CoroutineDispatcher): Flow<List<TrackedFood>> = flowOf(emptyList())
                 override suspend fun delete(id: Long) {}
             },
             foodRepository = object : com.kurban.calory.features.main.domain.FoodRepository {
@@ -136,6 +136,7 @@ class MiddlewareTests {
             repository = object : com.kurban.calory.features.main.domain.TrackedFoodRepository {
                 override suspend fun add(food: TrackedFood) {}
                 override suspend fun getByDay(dayId: String): List<TrackedFood> = emptyList()
+                override fun observeByDay(dayId: String, dispatcher: CoroutineDispatcher): Flow<List<TrackedFood>> = flowOf(emptyList())
                 override suspend fun delete(id: Long) {
                     deletedId = id
                 }

@@ -4,6 +4,7 @@ import android.content.Context
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import app.cash.sqldelight.db.SqlDriver
 import sqldelight.foodScheme.food.FoodDatabase
+import sqldelight.customFoodScheme.custom.CustomFoodDatabase
 import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
 import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
@@ -33,6 +34,14 @@ actual class DatabaseDriverFactory actual constructor(
             UserProfileDatabase.Schema,
             driverContext,
             "userProfile.db"
+        )
+    }
+
+    actual fun createDriverForCustomFoodDatabase(): SqlDriver {
+        return AndroidSqliteDriver(
+            CustomFoodDatabase.Schema,
+            driverContext,
+            "customFood.db"
         )
     }
 }

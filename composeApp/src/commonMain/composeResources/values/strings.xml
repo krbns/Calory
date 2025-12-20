@@ -15,6 +15,9 @@
     <string name="pick_from_search">Выберите продукт из поиска</string>
     <string name="portion_grams">Порция (г)</string>
     <string name="add">Добавить</string>
+    <string name="add_option_title">Как добавить продукт?</string>
+    <string name="add_option_search">Поиск продуктов</string>
+    <string name="add_option_custom">Мои продукты</string>
 
     <string name="meals_today">История</string>
     <string name="empty_list">Пока пусто. Добавьте первую порцию.</string>
@@ -39,4 +42,15 @@
     <string name="profile_saved">Профиль сохранен</string>
     <string name="profile_open">Профиль</string>
     <string name="back">Назад</string>
+
+    <string name="custom_foods_title">Мои продукты</string>
+    <string name="custom_foods_empty">Пока нет собственных продуктов</string>
+    <string name="custom_food_sheet_title">Создать свой продукт</string>
+    <string name="custom_food_name">Название продукта</string>
+    <string name="custom_food_calories">Калории (на 100 г)</string>
+    <string name="custom_food_proteins">Белки</string>
+    <string name="custom_food_fats">Жиры</string>
+    <string name="custom_food_carbs">Углеводы</string>
+    <string name="per_100g_hint">Показатели указаны за 100 грамм продукта</string>
+    <string name="add_portion">Добавить порцию</string>
 </resources>

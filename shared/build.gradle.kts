@@ -79,5 +79,9 @@ sqldelight {
             packageName.set("sqldelight.userProfileScheme.profile")
             srcDirs.from("src/commonMain/sqldelight/userProfileScheme")
         }
+        create("CustomFoodDatabase") {
+            packageName.set("sqldelight.customFoodScheme.custom")
+            srcDirs.from("src/commonMain/sqldelight/customFoodScheme")
+        }
     }
 }

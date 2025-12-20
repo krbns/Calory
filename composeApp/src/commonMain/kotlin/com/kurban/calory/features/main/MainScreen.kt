@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,6 +71,9 @@ import calory.composeapp.generated.resources.macro_carb_short
 import calory.composeapp.generated.resources.macro_fat_short
 import calory.composeapp.generated.resources.macro_protein_short
 import calory.composeapp.generated.resources.meals_today
+import calory.composeapp.generated.resources.add_option_custom
+import calory.composeapp.generated.resources.add_option_search
+import calory.composeapp.generated.resources.add_option_title
 import calory.composeapp.generated.resources.pick_from_search
 import calory.composeapp.generated.resources.portion_grams
 import calory.composeapp.generated.resources.profile_open
@@ -101,6 +105,7 @@ import kotlin.math.roundToInt
 fun MainScreen(
     modifier: Modifier = Modifier,
     onOpenProfile: () -> Unit = {},
+    onOpenCustomFoods: () -> Unit = {},
 ) {
     val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsState()
@@ -126,6 +131,7 @@ fun MainScreen(
             viewModel.dispatch(MainIntent.ClearError)
         },
         onOpenProfile = onOpenProfile,
+        onOpenCustomFoods = onOpenCustomFoods,
         modifier = modifier
     )
 }
@@ -142,11 +148,14 @@ private fun MainContent(
     onAddFood: () -> Unit,
     onRemoveEntry: (Long) -> Unit,
     onErrorDismiss: () -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenCustomFoods: () -> Unit
 ) {
     CaloryTheme {
-        var isSheetOpen by remember { mutableStateOf(false) }
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        var isOptionsSheetOpen by remember { mutableStateOf(false) }
+        var isSearchSheetOpen by remember { mutableStateOf(false) }
+        val optionsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val scope = rememberCoroutineScope()
         val colors = MaterialTheme.colorScheme
         val surfaceGradient = remember {
@@ -162,7 +171,7 @@ private fun MainContent(
             containerColor = Color.Transparent,
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    onClick = { isSheetOpen = true },
+                    onClick = { isOptionsSheetOpen = true },
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     text = { Text(stringResource(Res.string.add_to_diary)) }
                 )
@@ -208,10 +217,58 @@ private fun MainContent(
             }
         }
 
-        if (isSheetOpen) {
+        if (isOptionsSheetOpen) {
             ModalBottomSheet(
-                onDismissRequest = { isSheetOpen = false },
-                sheetState = sheetState
+                onDismissRequest = { isOptionsSheetOpen = false },
+                sheetState = optionsSheetState
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.medium)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.add_option_title),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                optionsSheetState.hide()
+                                isOptionsSheetOpen = false
+                                isSearchSheetOpen = true
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(stringResource(Res.string.add_option_search))
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                optionsSheetState.hide()
+                                isOptionsSheetOpen = false
+                                onOpenCustomFoods()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Text(stringResource(Res.string.add_option_custom))
+                    }
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+                }
+            }
+        }
+
+        if (isSearchSheetOpen) {
+            ModalBottomSheet(
+                onDismissRequest = { isSearchSheetOpen = false },
+                sheetState = searchSheetState
             ) {
                 Column(
                     modifier = Modifier
@@ -238,8 +295,8 @@ private fun MainContent(
                         onAdd = {
                             onAddFood()
                             scope.launch {
-                                sheetState.hide()
-                                isSheetOpen = false
+                                searchSheetState.hide()
+                                isSearchSheetOpen = false
                             }
                         }
                     )
@@ -690,6 +747,7 @@ fun MainScreenPreview() {
         onAddFood = {},
         onRemoveEntry = {},
         onErrorDismiss = {},
-        onOpenProfile = {}
+        onOpenProfile = {},
+        onOpenCustomFoods = {}
     )
 }
