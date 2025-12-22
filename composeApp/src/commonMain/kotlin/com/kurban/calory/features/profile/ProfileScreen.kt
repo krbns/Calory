@@ -51,7 +51,6 @@ import calory.composeapp.generated.resources.profile_sex_female
 import calory.composeapp.generated.resources.profile_sex_male
 import calory.composeapp.generated.resources.profile_title
 import calory.composeapp.generated.resources.profile_weight
-import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.profile.domain.model.UserGoal
@@ -81,140 +80,141 @@ fun ProfileScreen(
         }
     }
 
-    CaloryTheme {
-        val colors = MaterialTheme.colorScheme
-        val surfaceGradient = Brush.linearGradient(
-            listOf(
-                colors.background,
-                colors.surfaceVariant
-            )
+    val colors = MaterialTheme.colorScheme
+    val surfaceGradient = Brush.linearGradient(
+        listOf(
+            colors.background,
+            colors.surfaceVariant
         )
+    )
 
-        Scaffold(
-            modifier = modifier.fillMaxSize(),
-            containerColor = Color.Transparent
-        ) { padding ->
-            Box(
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(surfaceGradient)
+                .padding(padding)
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(surfaceGradient)
-                    .padding(padding)
+                    .padding(
+                        horizontal = MaterialTheme.spacing.extraLarge,
+                        vertical = MaterialTheme.spacing.small
+                    ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.small),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.profile_title),
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            text = stringResource(Res.string.back),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(MaterialTheme.spacing.small)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                    shape = RoundedCornerShape(50)
-                                )
-                                .padding(
-                                    horizontal = MaterialTheme.spacing.medium,
-                                    vertical = MaterialTheme.spacing.extraSmall
-                                )
-                                .clickable { onBack() }
-                        )
-                    }
-                    ProfileCard {
-                        ProfileSectionTitle(stringResource(Res.string.profile_sex))
-                        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
-                            FilterChip(
-                                selected = state.sex == UserSex.MALE,
-                                onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
-                                label = { Text(stringResource(Res.string.profile_sex_male)) }
-                            )
-                            FilterChip(
-                                selected = state.sex == UserSex.FEMALE,
-                                onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
-                                label = { Text(stringResource(Res.string.profile_sex_female)) }
-                            )
-                        }
-
-                        ProfileSectionTitle(stringResource(Res.string.profile_goal))
-                        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
-                            FilterChip(
-                                selected = state.goal == UserGoal.GAIN_MUSCLE,
-                                onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
-                                label = { Text(stringResource(Res.string.profile_goal_gain)) }
-                            )
-                            FilterChip(
-                                selected = state.goal == UserGoal.LOSE_WEIGHT,
-                                onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
-                                label = { Text(stringResource(Res.string.profile_goal_lose)) }
-                            )
-                        }
-
-                        ProfileSectionTitle(stringResource(Res.string.profile_age))
-                        OutlinedTextField(
-                            value = state.ageInput,
-                            onValueChange = { viewModel.dispatch(ProfileIntent.AgeChanged(it)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-
-                        ProfileSectionTitle(stringResource(Res.string.profile_height))
-                        OutlinedTextField(
-                            value = state.heightInput,
-                            onValueChange = { viewModel.dispatch(ProfileIntent.HeightChanged(it)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-
-                        ProfileSectionTitle(stringResource(Res.string.profile_weight))
-                        OutlinedTextField(
-                            value = state.weightInput,
-                            onValueChange = { viewModel.dispatch(ProfileIntent.WeightChanged(it)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-                    }
-
-                    Button(
-                        onClick = { viewModel.dispatch(ProfileIntent.Save) },
-                        enabled = !state.isSaving,
+                    Text(
+                        text = stringResource(Res.string.profile_title),
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = stringResource(Res.string.back),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                    ) {
-                        Text(stringResource(Res.string.profile_save))
-                    }
-
-                    if (state.saved) {
-                        Text(
-                            text = stringResource(Res.string.profile_saved),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.wrapContentWidth()
+                            .wrapContentWidth()
+                            .padding(MaterialTheme.spacing.small)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(50)
+                            )
+                            .padding(
+                                horizontal = MaterialTheme.spacing.medium,
+                                vertical = MaterialTheme.spacing.extraSmall
+                            )
+                            .clickable { onBack() }
+                    )
+                }
+                ProfileCard {
+                    ProfileSectionTitle(stringResource(Res.string.profile_sex))
+                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                        FilterChip(
+                            selected = state.sex == UserSex.MALE,
+                            onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
+                            label = { Text(stringResource(Res.string.profile_sex_male)) }
+                        )
+                        FilterChip(
+                            selected = state.sex == UserSex.FEMALE,
+                            onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
+                            label = { Text(stringResource(Res.string.profile_sex_female)) }
                         )
                     }
 
-                    val message = errorMessage ?: state.errorMessage
-                    if (message != null) {
-                        Text(
-                            text = message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
+                    ProfileSectionTitle(stringResource(Res.string.profile_goal))
+                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                        FilterChip(
+                            selected = state.goal == UserGoal.GAIN_MUSCLE,
+                            onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
+                            label = { Text(stringResource(Res.string.profile_goal_gain)) }
+                        )
+                        FilterChip(
+                            selected = state.goal == UserGoal.LOSE_WEIGHT,
+                            onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
+                            label = { Text(stringResource(Res.string.profile_goal_lose)) }
                         )
                     }
+
+                    ProfileSectionTitle(stringResource(Res.string.profile_age))
+                    OutlinedTextField(
+                        value = state.ageInput,
+                        onValueChange = { viewModel.dispatch(ProfileIntent.AgeChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    ProfileSectionTitle(stringResource(Res.string.profile_height))
+                    OutlinedTextField(
+                        value = state.heightInput,
+                        onValueChange = { viewModel.dispatch(ProfileIntent.HeightChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    ProfileSectionTitle(stringResource(Res.string.profile_weight))
+                    OutlinedTextField(
+                        value = state.weightInput,
+                        onValueChange = { viewModel.dispatch(ProfileIntent.WeightChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+
+                Button(
+                    onClick = { viewModel.dispatch(ProfileIntent.Save) },
+                    enabled = !state.isSaving,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(Res.string.profile_save))
+                }
+
+                if (state.saved) {
+                    Text(
+                        text = stringResource(Res.string.profile_saved),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.wrapContentWidth()
+                    )
+                }
+
+                val message = errorMessage ?: state.errorMessage
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

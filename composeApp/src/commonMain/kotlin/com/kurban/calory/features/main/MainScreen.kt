@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -139,9 +140,9 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 private fun MainContent(
+    modifier: Modifier = Modifier,
     state: MainUiState,
     errorMessage: String?,
-    modifier: Modifier = Modifier,
     onQueryChanged: (String) -> Unit,
     onSelectFood: (Food) -> Unit,
     onGramsChanged: (String) -> Unit,
@@ -151,157 +152,164 @@ private fun MainContent(
     onOpenProfile: () -> Unit,
     onOpenCustomFoods: () -> Unit
 ) {
-    CaloryTheme {
-        var isOptionsSheetOpen by remember { mutableStateOf(false) }
-        var isSearchSheetOpen by remember { mutableStateOf(false) }
-        val optionsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val scope = rememberCoroutineScope()
-        val colors = MaterialTheme.colorScheme
-        val surfaceGradient = remember {
-            Brush.linearGradient(
-                listOf(
-                    colors.background,
-                    colors.surfaceVariant
-                )
+    var isOptionsSheetOpen by remember { mutableStateOf(false) }
+    var isSearchSheetOpen by remember { mutableStateOf(false) }
+    val optionsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val colors = MaterialTheme.colorScheme
+    val surfaceGradient = remember {
+        Brush.linearGradient(
+            listOf(
+                colors.background,
+                colors.surfaceVariant
+            )
+        )
+    }
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { isOptionsSheetOpen = true },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text(stringResource(Res.string.add_to_diary)) }
             )
         }
-        Scaffold(
-            modifier = modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    onClick = { isOptionsSheetOpen = true },
-                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text(stringResource(Res.string.add_to_diary)) }
-                )
-            }
-        ) { padding ->
-            Box(
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(surfaceGradient)
+                .padding(padding)
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(surfaceGradient)
-                    .padding(padding)
+                    .padding(
+                        horizontal = MaterialTheme.spacing.extraLarge,
+                        vertical = MaterialTheme.spacing.large
+                    ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.large),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
-                ) {
-                    Header(onOpenProfile = onOpenProfile)
-                    SummaryCard(
-                        calories = state.totalCalories,
-                        proteins = state.totalProteins,
-                        fats = state.totalFats,
-                        carbs = state.totalCarbs,
-                        targets = state.macroTargets
-                    )
-                    ConsumptionList(
-                        items = state.tracked,
-                        onRemove = onRemoveEntry,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                Header(onOpenProfile = onOpenProfile)
+                SummaryCard(
+                    calories = state.totalCalories,
+                    proteins = state.totalProteins,
+                    fats = state.totalFats,
+                    carbs = state.totalCarbs,
+                    targets = state.macroTargets
+                )
+                ConsumptionList(
+                    items = state.tracked,
+                    onRemove = onRemoveEntry,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-                AnimatedVisibility(
-                    visible = errorMessage != null,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(MaterialTheme.spacing.large),
-                    enter = fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing)),
-                    exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
-                ) {
-                    ErrorCard(message = errorMessage.orEmpty(), onDismiss = onErrorDismiss)
-                }
+            AnimatedVisibility(
+                visible = errorMessage != null,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(MaterialTheme.spacing.large),
+                enter = fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing)),
+                exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
+            ) {
+                ErrorCard(message = errorMessage.orEmpty(), onDismiss = onErrorDismiss)
             }
         }
+    }
 
-        if (isOptionsSheetOpen) {
-            ModalBottomSheet(
-                onDismissRequest = { isOptionsSheetOpen = false },
-                sheetState = optionsSheetState
+    if (isOptionsSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isOptionsSheetOpen = false },
+            sheetState = optionsSheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        horizontal = MaterialTheme.spacing.extraLarge,
+                        vertical = MaterialTheme.spacing.medium
+                    )
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.medium)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.add_option_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                optionsSheetState.hide()
-                                isOptionsSheetOpen = false
-                                isSearchSheetOpen = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Text(stringResource(Res.string.add_option_search))
-                    }
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                optionsSheetState.hide()
-                                isOptionsSheetOpen = false
-                                onOpenCustomFoods()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                    ) {
-                        Text(stringResource(Res.string.add_option_custom))
-                    }
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-                }
-            }
-        }
-
-        if (isSearchSheetOpen) {
-            ModalBottomSheet(
-                onDismissRequest = { isSearchSheetOpen = false },
-                sheetState = searchSheetState
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.small)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.add_to_diary),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    SearchSection(
-                        query = state.query,
-                        results = state.searchResults,
-                        isSearching = state.isSearching,
-                        onQueryChanged = onQueryChanged,
-                        onSelect = onSelectFood
-                    )
-                    SelectionSection(
-                        selected = state.selectedFood,
-                        gramsInput = state.gramsInput,
-                        onGramsChanged = onGramsChanged,
-                        onAdd = {
-                            onAddFood()
-                            scope.launch {
-                                searchSheetState.hide()
-                                isSearchSheetOpen = false
-                            }
+                Text(
+                    text = stringResource(Res.string.add_option_title),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Button(
+                    onClick = {
+                        scope.launch {
+                            optionsSheetState.hide()
+                            isOptionsSheetOpen = false
+                            isSearchSheetOpen = true
                         }
-                    )
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(stringResource(Res.string.add_option_search))
                 }
+                Button(
+                    onClick = {
+                        scope.launch {
+                            optionsSheetState.hide()
+                            isOptionsSheetOpen = false
+                            onOpenCustomFoods()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text(stringResource(Res.string.add_option_custom))
+                }
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+            }
+        }
+    }
+
+    if (isSearchSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isSearchSheetOpen = false },
+            sheetState = searchSheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        horizontal = MaterialTheme.spacing.extraLarge,
+                        vertical = MaterialTheme.spacing.small
+                    )
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+            ) {
+                Text(
+                    text = stringResource(Res.string.add_to_diary),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                SearchSection(
+                    query = state.query,
+                    results = state.searchResults,
+                    isSearching = state.isSearching,
+                    onQueryChanged = onQueryChanged,
+                    onSelect = onSelectFood
+                )
+                SelectionSection(
+                    selected = state.selectedFood,
+                    gramsInput = state.gramsInput,
+                    onGramsChanged = onGramsChanged,
+                    onAdd = {
+                        onAddFood()
+                        scope.launch {
+                            searchSheetState.hide()
+                            isSearchSheetOpen = false
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             }
         }
     }
@@ -399,9 +407,13 @@ private fun MacroPill(label: String, value: Double, target: Double?, color: Colo
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(50))
+            .defaultMinSize(minWidth = 76.dp)
+            .clip(CircleShape)
             .background(color.copy(alpha = 0.15f))
-            .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.compact)
+            .padding(
+                horizontal = MaterialTheme.spacing.medium,
+                vertical = MaterialTheme.spacing.compact
+            )
     ) {
         Text(text = label, style = MaterialTheme.typography.labelMedium, color = color)
         Text(
@@ -473,7 +485,10 @@ private fun FoodRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.compact),
+                .padding(
+                    horizontal = MaterialTheme.spacing.medium,
+                    vertical = MaterialTheme.spacing.compact
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
@@ -686,7 +701,10 @@ private fun ErrorCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = MaterialTheme.spacing.large, vertical = MaterialTheme.spacing.extraLarge)
+                .padding(
+                    horizontal = MaterialTheme.spacing.large,
+                    vertical = MaterialTheme.spacing.extraLarge
+                )
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -698,7 +716,10 @@ private fun ErrorCard(
                 modifier = Modifier.weight(1f)
             )
             TextButton(onClick = onDismiss) {
-                Text(stringResource(Res.string.dismiss), color = MaterialTheme.colorScheme.onErrorContainer)
+                Text(
+                    stringResource(Res.string.dismiss),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
             }
         }
     }

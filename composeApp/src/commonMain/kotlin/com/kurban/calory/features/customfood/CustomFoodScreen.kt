@@ -119,199 +119,213 @@ fun CustomFoodScreen(
         }
     }
 
-    CaloryTheme {
-        Scaffold(
-            modifier = modifier.fillMaxSize(),
-            topBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.large, vertical = MaterialTheme.spacing.medium),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(Res.string.back))
-                    }
-                    Text(
-                        text = stringResource(Res.string.custom_foods_title),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(start = MaterialTheme.spacing.small)
-                    )
-                }
-            },
-            floatingActionButton = {
-                FilledTonalButton(
-                    onClick = { isCreateSheetOpen = true },
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.padding(end = MaterialTheme.spacing.compact))
-                    Text(text = stringResource(Res.string.add))
-                }
-            },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-        ) { padding ->
-            Column(
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.medium),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = MaterialTheme.spacing.large,
+                        vertical = MaterialTheme.spacing.medium
+                    ),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                SearchBar(
-                    query = state.query,
-                    onQueryChanged = { viewModel.dispatch(CustomFoodIntent.QueryChanged(it)) }
-                )
-                state.errorMessage?.let { message ->
-                    Text(
-                        text = message,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.small)
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(Res.string.back)
                     )
                 }
-
-                if (state.filteredFoods.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = MaterialTheme.spacing.large),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.custom_foods_empty),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
-                    ) {
-                        items(state.filteredFoods, key = { it.id }) { food ->
-                            CustomFoodRow(
-                                food = food,
-                                onAddClick = { selectedForPortion = food }
-                            )
-                        }
-                    }
-                }
+                Text(
+                    text = stringResource(Res.string.custom_foods_title),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = MaterialTheme.spacing.small)
+                )
             }
-        }
-
-        if (isCreateSheetOpen) {
-            ModalBottomSheet(
-                sheetState = createSheetState,
-                onDismissRequest = { isCreateSheetOpen = false }
+        },
+        floatingActionButton = {
+            FilledTonalButton(
+                onClick = { isCreateSheetOpen = true },
+                shape = RoundedCornerShape(18.dp)
             ) {
-                Column(
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = MaterialTheme.spacing.compact)
+                )
+                Text(text = stringResource(Res.string.add))
+            }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(
+                    horizontal = MaterialTheme.spacing.extraLarge,
+                    vertical = MaterialTheme.spacing.medium
+                ),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large)
+        ) {
+            SearchBar(
+                query = state.query,
+                onQueryChanged = { viewModel.dispatch(CustomFoodIntent.QueryChanged(it)) }
+            )
+            state.errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = MaterialTheme.spacing.small)
+                )
+            }
+
+            if (state.filteredFoods.isEmpty()) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.extraLarge, vertical = MaterialTheme.spacing.medium),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                        .padding(top = MaterialTheme.spacing.large),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = stringResource(Res.string.custom_food_sheet_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    OutlinedTextField(
-                        value = nameInput,
-                        onValueChange = { nameInput = it },
-                        label = { Text(stringResource(Res.string.custom_food_name)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-                    MacroInputRow(
-                        calories = caloriesInput,
-                        proteins = proteinsInput,
-                        fats = fatsInput,
-                        carbs = carbsInput,
-                        onCaloriesChange = { caloriesInput = it },
-                        onProteinsChange = { proteinsInput = it },
-                        onFatsChange = { fatsInput = it },
-                        onCarbsChange = { carbsInput = it }
-                    )
-                    Text(
-                        text = stringResource(Res.string.per_100g_hint),
-                        style = MaterialTheme.typography.bodySmall,
+                        text = stringResource(Res.string.custom_foods_empty),
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Button(
-                        onClick = {
-                            viewModel.dispatch(
-                                CustomFoodIntent.CreateFood(
-                                    name = nameInput,
-                                    calories = caloriesInput,
-                                    proteins = proteinsInput,
-                                    fats = fatsInput,
-                                    carbs = carbsInput
-                                )
-                            )
-                        },
-                        enabled = !state.isSaving && nameInput.isNotBlank(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = MaterialTheme.spacing.small)
-                    ) {
-                        Text(text = stringResource(Res.string.add))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+                ) {
+                    items(state.filteredFoods, key = { it.id }) { food ->
+                        CustomFoodRow(
+                            food = food,
+                            onAddClick = { selectedForPortion = food }
+                        )
                     }
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
                 }
             }
         }
+    }
 
-        selectedForPortion?.let { food ->
-            AlertDialog(
-                onDismissRequest = {
+    if (isCreateSheetOpen) {
+        ModalBottomSheet(
+            sheetState = createSheetState,
+            onDismissRequest = { isCreateSheetOpen = false }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = MaterialTheme.spacing.extraLarge,
+                        vertical = MaterialTheme.spacing.medium
+                    ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                Text(
+                    text = stringResource(Res.string.custom_food_sheet_title),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    label = { Text(stringResource(Res.string.custom_food_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                MacroInputRow(
+                    calories = caloriesInput,
+                    proteins = proteinsInput,
+                    fats = fatsInput,
+                    carbs = carbsInput,
+                    onCaloriesChange = { caloriesInput = it },
+                    onProteinsChange = { proteinsInput = it },
+                    onFatsChange = { fatsInput = it },
+                    onCarbsChange = { carbsInput = it }
+                )
+                Text(
+                    text = stringResource(Res.string.per_100g_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(
+                    onClick = {
+                        viewModel.dispatch(
+                            CustomFoodIntent.CreateFood(
+                                name = nameInput,
+                                calories = caloriesInput,
+                                proteins = proteinsInput,
+                                fats = fatsInput,
+                                carbs = carbsInput
+                            )
+                        )
+                    },
+                    enabled = !state.isSaving && nameInput.isNotBlank(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = MaterialTheme.spacing.small)
+                ) {
+                    Text(text = stringResource(Res.string.add))
+                }
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+            }
+        }
+    }
+
+    selectedForPortion?.let { food ->
+        AlertDialog(
+            onDismissRequest = {
+                selectedForPortion = null
+                portionError = null
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val grams = portionInput.replace(',', '.').toDoubleOrNull()?.roundToInt()
+                    if (grams == null || grams <= 0) {
+                        portionError = "Введите вес в граммах"
+                    } else {
+                        viewModel.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
+                        portionError = null
+                        selectedForPortion = null
+                        portionInput = "100"
+                    }
+                }) {
+                    Text(stringResource(Res.string.add_portion))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
                     selectedForPortion = null
                     portionError = null
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        val grams = portionInput.replace(',', '.').toDoubleOrNull()?.roundToInt()
-                        if (grams == null || grams <= 0) {
-                            portionError = "Введите вес в граммах"
-                        } else {
-                            viewModel.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
-                            portionError = null
-                            selectedForPortion = null
-                            portionInput = "100"
-                        }
-                    }) {
-                        Text(stringResource(Res.string.add_portion))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        selectedForPortion = null
-                        portionError = null
-                    }) {
-                        Text(text = stringResource(Res.string.back))
-                    }
-                },
-                title = { Text(text = food.name, style = MaterialTheme.typography.titleMedium) },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
-                        OutlinedTextField(
-                            value = portionInput,
-                            onValueChange = { portionInput = it },
-                            label = { Text(stringResource(Res.string.portion_grams)) },
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors()
+                }) {
+                    Text(text = stringResource(Res.string.back))
+                }
+            },
+            title = { Text(text = food.name, style = MaterialTheme.typography.titleMedium) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                    OutlinedTextField(
+                        value = portionInput,
+                        onValueChange = { portionInput = it },
+                        label = { Text(stringResource(Res.string.portion_grams)) },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors()
+                    )
+                    portionError?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
                         )
-                        portionError?.let {
-                            Text(
-                                text = it,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
                     }
                 }
-            )
-        }
+            }
+        )
     }
 }
 
@@ -347,7 +361,10 @@ private fun CustomFoodRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.spacing.large, vertical = MaterialTheme.spacing.medium),
+                .padding(
+                    horizontal = MaterialTheme.spacing.large,
+                    vertical = MaterialTheme.spacing.medium
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

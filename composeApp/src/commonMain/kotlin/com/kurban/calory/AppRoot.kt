@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.features.customfood.CustomFoodScreen
 import com.kurban.calory.features.main.MainScreen
 import com.kurban.calory.features.profile.ProfileScreen
@@ -13,15 +14,17 @@ import com.kurban.calory.features.profile.ProfileScreen
 fun AppRoot() {
     var current by remember { mutableStateOf(Screen.Main) }
 
-    when (current) {
-        Screen.Main -> MainScreen(
-            onOpenProfile = { current = Screen.Profile },
-            onOpenCustomFoods = { current = Screen.CustomFood },
-        )
-        Screen.Profile -> ProfileScreen(onBack = { current = Screen.Main })
-        Screen.CustomFood -> CustomFoodScreen(
-            onBack = { current = Screen.Main },
-        )
+    CaloryTheme {
+        when (current) {
+            Screen.Main -> MainScreen(
+                onOpenProfile = { current = Screen.Profile },
+                onOpenCustomFoods = { current = Screen.CustomFood },
+            )
+            Screen.Profile -> ProfileScreen(onBack = { current = Screen.Main })
+            Screen.CustomFood -> CustomFoodScreen(
+                onBack = { current = Screen.Main },
+            )
+        }
     }
 }
 
