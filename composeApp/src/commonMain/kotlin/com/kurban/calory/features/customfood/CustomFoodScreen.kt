@@ -140,7 +140,8 @@ fun CustomFoodScreen(
                 IconButton(onClick = component.onBack) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(Res.string.back)
+                        contentDescription = stringResource(Res.string.back),
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 Text(
