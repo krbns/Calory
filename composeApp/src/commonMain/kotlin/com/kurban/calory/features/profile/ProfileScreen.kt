@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import calory.composeapp.generated.resources.Res
 import calory.composeapp.generated.resources.profile_age
@@ -53,6 +54,8 @@ import calory.composeapp.generated.resources.profile_sex_female
 import calory.composeapp.generated.resources.profile_sex_male
 import calory.composeapp.generated.resources.profile_title
 import calory.composeapp.generated.resources.profile_weight
+import calory.composeapp.generated.resources.unit_cm
+import calory.composeapp.generated.resources.unit_kg
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
@@ -126,56 +129,76 @@ fun ProfileScreen(
                     )
                 }
                 ProfileCard {
-                    ProfileSectionTitle(stringResource(Res.string.profile_sex))
-                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
-                        FilterChip(
-                            selected = state.sex == UserSex.MALE,
-                            onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
-                            label = { Text(stringResource(Res.string.profile_sex_male)) }
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        ProfileSectionTitle(
+                            text = stringResource(Res.string.profile_sex),
+                            bottomSpacing = 0.dp
                         )
-                        FilterChip(
-                            selected = state.sex == UserSex.FEMALE,
-                            onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
-                            label = { Text(stringResource(Res.string.profile_sex_female)) }
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                            FilterChip(
+                                selected = state.sex == UserSex.MALE,
+                                onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
+                                label = { Text(stringResource(Res.string.profile_sex_male)) }
+                            )
+                            FilterChip(
+                                selected = state.sex == UserSex.FEMALE,
+                                onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
+                                label = { Text(stringResource(Res.string.profile_sex_female)) }
+                            )
+                        }
                     }
 
-                    ProfileSectionTitle(stringResource(Res.string.profile_goal))
-                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
-                        FilterChip(
-                            selected = state.goal == UserGoal.GAIN_MUSCLE,
-                            onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
-                            label = { Text(stringResource(Res.string.profile_goal_gain)) }
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        ProfileSectionTitle(
+                            text = stringResource(Res.string.profile_goal),
+                            bottomSpacing = 0.dp
                         )
-                        FilterChip(
-                            selected = state.goal == UserGoal.LOSE_WEIGHT,
-                            onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
-                            label = { Text(stringResource(Res.string.profile_goal_lose)) }
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                            FilterChip(
+                                selected = state.goal == UserGoal.GAIN_MUSCLE,
+                                onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
+                                label = { Text(stringResource(Res.string.profile_goal_gain)) }
+                            )
+                            FilterChip(
+                                selected = state.goal == UserGoal.LOSE_WEIGHT,
+                                onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
+                                label = { Text(stringResource(Res.string.profile_goal_lose)) }
+                            )
+                        }
                     }
 
-                    ProfileSectionTitle(stringResource(Res.string.profile_age))
                     OutlinedTextField(
                         value = state.ageInput,
                         onValueChange = { component.dispatch(ProfileIntent.AgeChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
+                        placeholder = { Text(stringResource(Res.string.profile_age)) }
                     )
 
-                    ProfileSectionTitle(stringResource(Res.string.profile_height))
                     OutlinedTextField(
                         value = state.heightInput,
                         onValueChange = { component.dispatch(ProfileIntent.HeightChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
+                        placeholder = { Text(stringResource(Res.string.profile_height)) },
+                        suffix = if (state.heightInput.isNotBlank()) {
+                            { Text(stringResource(Res.string.unit_cm)) }
+                        } else {
+                            null
+                        }
                     )
 
-                    ProfileSectionTitle(stringResource(Res.string.profile_weight))
                     OutlinedTextField(
                         value = state.weightInput,
                         onValueChange = { component.dispatch(ProfileIntent.WeightChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
+                        placeholder = { Text(stringResource(Res.string.profile_weight)) },
+                        suffix = if (state.weightInput.isNotBlank()) {
+                            { Text(stringResource(Res.string.unit_kg)) }
+                        } else {
+                            null
+                        }
                     )
                 }
 
@@ -231,11 +254,14 @@ private fun ProfileCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun ProfileSectionTitle(text: String) {
+private fun ProfileSectionTitle(
+    text: String,
+    bottomSpacing: Dp = MaterialTheme.spacing.extraSmall
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.onSurface
     )
-    Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
+    Spacer(modifier = Modifier.height(bottomSpacing))
 }

@@ -35,6 +35,8 @@
     <string name="profile_age">Возраст</string>
     <string name="profile_height">Рост (см)</string>
     <string name="profile_weight">Вес (кг)</string>
+    <string name="unit_cm">см</string>
+    <string name="unit_kg">кг</string>
     <string name="profile_goal">Цель</string>
     <string name="profile_goal_gain">Набор массы</string>
     <string name="profile_goal_lose">Похудение</string>
