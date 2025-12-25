@@ -221,6 +221,11 @@ private fun MainContent(
             onDismissRequest = { isOptionsSheetOpen = false },
             sheetState = optionsSheetState
         ) {
+            val optionButtonColors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            val optionButtonShape = RoundedCornerShape(18.dp)
             Column(
                 modifier = Modifier
                     .padding(
@@ -244,7 +249,9 @@ private fun MainContent(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = optionButtonShape,
+                    colors = optionButtonColors,
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = MaterialTheme.elevation.medium)
                 ) {
                     Text(stringResource(Res.string.add_option_search))
                 }
@@ -256,8 +263,9 @@ private fun MainContent(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    shape = optionButtonShape,
+                    colors = optionButtonColors,
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = MaterialTheme.elevation.medium)
                 ) {
                     Text(stringResource(Res.string.add_option_custom))
                 }
