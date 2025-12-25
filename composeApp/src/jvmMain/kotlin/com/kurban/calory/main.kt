@@ -15,13 +15,13 @@ import com.kurban.calory.core.navigation.DefaultRootComponent
 fun main() = application {
     val lifecycle = LifecycleRegistry()
 
-    val root =
-        runOnUiThread {
-            DefaultRootComponent(
-                componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            )
-        }
     initKoin(DatabaseDriverFactory(DriverContext()))
+
+    val root = runOnUiThread {
+        DefaultRootComponent(
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+        )
+    }
 
 //    application {
         val windowState = rememberWindowState(width = 420.dp, height = 760.dp)

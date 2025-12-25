@@ -1,13 +1,11 @@
 package com.kurban.calory.core.ui.mvi
 
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 typealias Reducer<S, A> = (S, A) -> S
@@ -19,15 +17,15 @@ typealias Middleware<S, A, E> = suspend (
     emitEffect: suspend (E) -> Unit
 ) -> Unit
 
-class Store<S, A, E>(
+class Store<S : Any, A, E>(
     initialState: S,
     private val reducer: Reducer<S, A>,
     private val middlewares: List<Middleware<S, A, E>>,
     private val scope: CoroutineScope,
     initialActions: List<A> = emptyList(),
 ) {
-    private val _state = MutableStateFlow(initialState)
-    val state: StateFlow<S> = _state.asStateFlow()
+    private val _state: MutableValue<S> = MutableValue(initialState)
+    val state: Value<S> get() = _state
 
     private val _effects = MutableSharedFlow<E>(replay = 0)
     val effects: SharedFlow<E> = _effects.asSharedFlow()
@@ -41,7 +39,7 @@ class Store<S, A, E>(
             middlewares.forEach { middleware ->
                 middleware(action, _state.value, { dispatch(it) }, { emitEffect(it) })
             }
-            _state.update { reducer(it, action) }
+            _state.value = reducer(_state.value, action)
         }
     }
 

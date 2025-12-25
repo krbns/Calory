@@ -17,14 +17,13 @@ import com.kurban.calory.features.main.data.FoodDataSource
 import com.kurban.calory.features.main.data.local.LocalFoodDataSource
 import com.kurban.calory.features.main.data.local.LocalTrackedFoodDataSource
 import com.kurban.calory.features.main.data.TrackedFoodDataSource
-import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
+import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
 import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.FoodRepository
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
-import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.core.ui.time.DefaultDayProvider
 import com.kurban.calory.features.profile.data.DefaultUserProfileRepository
@@ -35,8 +34,6 @@ import com.kurban.calory.features.profile.domain.GetUserProfileUseCase
 import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.SaveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.UserProfileRepository
-import com.kurban.calory.features.profile.ui.ProfileViewModel
-import com.kurban.calory.features.customfood.ui.CustomFoodViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.core.qualifier.named
@@ -105,10 +102,4 @@ val domainModule = module {
     factory { ObserveCustomFoodsUseCase(get(), get<AppDispatchers>().io) }
     factory { CreateCustomFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { AddCustomFoodToDiaryUseCase(get(), get(), get(), get<AppDispatchers>().io) }
-}
-
-val uiModule = module {
-    factory { MainViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    factory { ProfileViewModel(get(), get(), get()) }
-    factory { CustomFoodViewModel(get(), get(), get()) }
 }

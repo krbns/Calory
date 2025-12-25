@@ -14,8 +14,7 @@ fun initKoin(
         appDeclaration()
         modules(
             dataModule(driverFactory),
-            domainModule,
-            uiModule
+            domainModule
         )
     }
 }

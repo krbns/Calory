@@ -45,7 +45,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,13 +83,13 @@ import calory.composeapp.generated.resources.select
 import calory.composeapp.generated.resources.subtitle
 import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.core.format.roundToOne
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.ui.MainComponent
 import com.kurban.calory.features.profile.domain.model.MacroTargets
-import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
 import com.kurban.calory.features.main.ui.model.MainUiState
@@ -99,7 +98,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -107,12 +105,11 @@ fun MainScreen(
     component: MainComponent,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = koinViewModel<MainViewModel>()
-    val state by viewModel.uiState.collectAsState()
+    val state by component.state.subscribeAsState()
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect ->
+    LaunchedEffect(component) {
+        component.effects.collect { effect ->
             when (effect) {
                 is MainEffect.Error -> errorMessage = effect.message
             }
@@ -122,13 +119,13 @@ fun MainScreen(
     MainContent(
         state = state,
         errorMessage = errorMessage,
-        onQueryChanged = { viewModel.dispatch(MainIntent.QueryChanged(it)) },
-        onSelectFood = { viewModel.dispatch(MainIntent.FoodSelected(it)) },
-        onGramsChanged = { viewModel.dispatch(MainIntent.GramsChanged(it)) },
-        onAddFood = { viewModel.dispatch(MainIntent.AddSelectedFood) },
-        onRemoveEntry = { viewModel.dispatch(MainIntent.RemoveEntry(it)) },
+        onQueryChanged = { component.dispatch(MainIntent.QueryChanged(it)) },
+        onSelectFood = { component.dispatch(MainIntent.FoodSelected(it)) },
+        onGramsChanged = { component.dispatch(MainIntent.GramsChanged(it)) },
+        onAddFood = { component.dispatch(MainIntent.AddSelectedFood) },
+        onRemoveEntry = { component.dispatch(MainIntent.RemoveEntry(it)) },
         onErrorDismiss = {
-            viewModel.dispatch(MainIntent.ClearError)
+            component.dispatch(MainIntent.ClearError)
         },
         onOpenProfile = component.onOpenProfile,
         onOpenCustomFoods = component.onOpenCustomFoods,

@@ -26,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,17 +50,16 @@ import calory.composeapp.generated.resources.profile_sex_female
 import calory.composeapp.generated.resources.profile_sex_male
 import calory.composeapp.generated.resources.profile_title
 import calory.composeapp.generated.resources.profile_weight
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserSex
 import com.kurban.calory.features.profile.ui.ProfileComponent
-import com.kurban.calory.features.profile.ui.ProfileViewModel
 import com.kurban.calory.features.profile.ui.model.ProfileEffect
 import com.kurban.calory.features.profile.ui.model.ProfileIntent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
@@ -69,12 +67,11 @@ fun ProfileScreen(
     component: ProfileComponent,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = koinViewModel<ProfileViewModel>()
-    val state by viewModel.uiState.collectAsState()
+    val state by component.state.subscribeAsState()
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect ->
+    LaunchedEffect(component) {
+        component.effects.collect { effect ->
             when (effect) {
                 is ProfileEffect.Error -> errorMessage = effect.message
             }
@@ -141,12 +138,12 @@ fun ProfileScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
                         FilterChip(
                             selected = state.sex == UserSex.MALE,
-                            onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
+                            onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.MALE)) },
                             label = { Text(stringResource(Res.string.profile_sex_male)) }
                         )
                         FilterChip(
                             selected = state.sex == UserSex.FEMALE,
-                            onClick = { viewModel.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
+                            onClick = { component.dispatch(ProfileIntent.SexSelected(UserSex.FEMALE)) },
                             label = { Text(stringResource(Res.string.profile_sex_female)) }
                         )
                     }
@@ -155,12 +152,12 @@ fun ProfileScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
                         FilterChip(
                             selected = state.goal == UserGoal.GAIN_MUSCLE,
-                            onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
+                            onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.GAIN_MUSCLE)) },
                             label = { Text(stringResource(Res.string.profile_goal_gain)) }
                         )
                         FilterChip(
                             selected = state.goal == UserGoal.LOSE_WEIGHT,
-                            onClick = { viewModel.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
+                            onClick = { component.dispatch(ProfileIntent.GoalSelected(UserGoal.LOSE_WEIGHT)) },
                             label = { Text(stringResource(Res.string.profile_goal_lose)) }
                         )
                     }
@@ -168,7 +165,7 @@ fun ProfileScreen(
                     ProfileSectionTitle(stringResource(Res.string.profile_age))
                     OutlinedTextField(
                         value = state.ageInput,
-                        onValueChange = { viewModel.dispatch(ProfileIntent.AgeChanged(it)) },
+                        onValueChange = { component.dispatch(ProfileIntent.AgeChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -176,7 +173,7 @@ fun ProfileScreen(
                     ProfileSectionTitle(stringResource(Res.string.profile_height))
                     OutlinedTextField(
                         value = state.heightInput,
-                        onValueChange = { viewModel.dispatch(ProfileIntent.HeightChanged(it)) },
+                        onValueChange = { component.dispatch(ProfileIntent.HeightChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -184,14 +181,14 @@ fun ProfileScreen(
                     ProfileSectionTitle(stringResource(Res.string.profile_weight))
                     OutlinedTextField(
                         value = state.weightInput,
-                        onValueChange = { viewModel.dispatch(ProfileIntent.WeightChanged(it)) },
+                        onValueChange = { component.dispatch(ProfileIntent.WeightChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
                 }
 
                 Button(
-                    onClick = { viewModel.dispatch(ProfileIntent.Save) },
+                    onClick = { component.dispatch(ProfileIntent.Save) },
                     enabled = !state.isSaving,
                     modifier = Modifier
                         .fillMaxWidth()

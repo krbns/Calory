@@ -15,8 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -37,7 +37,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,34 +51,33 @@ import calory.composeapp.generated.resources.Res
 import calory.composeapp.generated.resources.add
 import calory.composeapp.generated.resources.add_portion
 import calory.composeapp.generated.resources.back
+import calory.composeapp.generated.resources.custom_food_added_to_diary
 import calory.composeapp.generated.resources.custom_food_calories
 import calory.composeapp.generated.resources.custom_food_carbs
+import calory.composeapp.generated.resources.custom_food_created
 import calory.composeapp.generated.resources.custom_food_fats
 import calory.composeapp.generated.resources.custom_food_name
 import calory.composeapp.generated.resources.custom_food_proteins
 import calory.composeapp.generated.resources.custom_food_sheet_title
 import calory.composeapp.generated.resources.custom_foods_empty
 import calory.composeapp.generated.resources.custom_foods_title
-import calory.composeapp.generated.resources.custom_food_added_to_diary
-import calory.composeapp.generated.resources.custom_food_created
 import calory.composeapp.generated.resources.food_macros_100
 import calory.composeapp.generated.resources.per_100g_hint
 import calory.composeapp.generated.resources.portion_invalid_grams
 import calory.composeapp.generated.resources.portion_grams
 import calory.composeapp.generated.resources.search_foods
 import calory.composeapp.generated.resources.select
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.kurban.calory.core.format.roundToOne
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.customfood.domain.model.CustomFood
 import com.kurban.calory.features.customfood.ui.CustomFoodComponent
-import com.kurban.calory.features.customfood.ui.CustomFoodViewModel
 import com.kurban.calory.features.customfood.ui.model.CustomFoodEffect
 import com.kurban.calory.features.customfood.ui.model.CustomFoodIntent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,8 +86,7 @@ fun CustomFoodScreen(
     component: CustomFoodComponent,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel = koinViewModel<CustomFoodViewModel>()
-    val state by viewModel.state.collectAsState()
+    val state by component.state.subscribeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var isCreateSheetOpen by remember { mutableStateOf(false) }
     val createSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -103,8 +100,8 @@ fun CustomFoodScreen(
     var carbsInput by rememberSaveable { mutableStateOf("") }
     val invalidPortionMessage = stringResource(Res.string.portion_invalid_grams)
 
-    LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect ->
+    LaunchedEffect(component) {
+        component.effects.collect { effect ->
             when (effect) {
                 is CustomFoodEffect.Error -> snackbarHostState.showSnackbar(effect.message)
                 is CustomFoodEffect.FoodCreated -> {
@@ -142,7 +139,7 @@ fun CustomFoodScreen(
             ) {
                 IconButton(onClick = component.onBack) {
                     Icon(
-                        Icons.Default.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(Res.string.back)
                     )
                 }
@@ -181,7 +178,7 @@ fun CustomFoodScreen(
         ) {
             SearchBar(
                 query = state.query,
-                onQueryChanged = { viewModel.dispatch(CustomFoodIntent.QueryChanged(it)) }
+                onQueryChanged = { component.dispatch(CustomFoodIntent.QueryChanged(it)) }
             )
             state.errorMessage?.let { message ->
                 Text(
@@ -224,7 +221,9 @@ fun CustomFoodScreen(
     if (isCreateSheetOpen) {
         ModalBottomSheet(
             sheetState = createSheetState,
-            onDismissRequest = { isCreateSheetOpen = false }
+            onDismissRequest = {
+                isCreateSheetOpen = false
+            }
         ) {
             Column(
                 modifier = Modifier
@@ -264,7 +263,7 @@ fun CustomFoodScreen(
                 )
                 Button(
                     onClick = {
-                        viewModel.dispatch(
+                        component.dispatch(
                             CustomFoodIntent.CreateFood(
                                 name = nameInput,
                                 calories = caloriesInput,
@@ -298,7 +297,7 @@ fun CustomFoodScreen(
                     if (grams == null || grams <= 0) {
                         portionError = invalidPortionMessage
                     } else {
-                        viewModel.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
+                        component.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
                         portionError = null
                         selectedForPortion = null
                         portionInput = "100"
