@@ -86,6 +86,7 @@ import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
+import com.kurban.calory.core.format.roundToOne
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.ui.MainComponent
 import com.kurban.calory.features.profile.domain.model.MacroTargets
@@ -99,7 +100,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -721,11 +721,6 @@ private fun ErrorCard(
             }
         }
     }
-}
-
-private fun Double.roundToOne(): String {
-    val rounded = (this * 10.0).roundToInt().toDouble() / 10.0
-    return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString()
 }
 
 @Preview(showBackground = true)

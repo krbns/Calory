@@ -53,4 +53,7 @@
     <string name="custom_food_carbs">Углеводы</string>
     <string name="per_100g_hint">Показатели указаны за 100 грамм продукта</string>
     <string name="add_portion">Добавить порцию</string>
+    <string name="custom_food_created">Добавлено: %1$s</string>
+    <string name="custom_food_added_to_diary">Добавлено в дневник: %1$s</string>
+    <string name="portion_invalid_grams">Введите вес в граммах</string>
 </resources>

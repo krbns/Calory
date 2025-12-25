@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalResourceApi::class)
+
 package com.kurban.calory.features.customfood
 
 import androidx.compose.foundation.layout.Arrangement
@@ -58,11 +60,15 @@ import calory.composeapp.generated.resources.custom_food_proteins
 import calory.composeapp.generated.resources.custom_food_sheet_title
 import calory.composeapp.generated.resources.custom_foods_empty
 import calory.composeapp.generated.resources.custom_foods_title
+import calory.composeapp.generated.resources.custom_food_added_to_diary
+import calory.composeapp.generated.resources.custom_food_created
 import calory.composeapp.generated.resources.food_macros_100
 import calory.composeapp.generated.resources.per_100g_hint
+import calory.composeapp.generated.resources.portion_invalid_grams
 import calory.composeapp.generated.resources.portion_grams
 import calory.composeapp.generated.resources.search_foods
 import calory.composeapp.generated.resources.select
+import com.kurban.calory.core.format.roundToOne
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.customfood.domain.model.CustomFood
@@ -70,6 +76,8 @@ import com.kurban.calory.features.customfood.ui.CustomFoodComponent
 import com.kurban.calory.features.customfood.ui.CustomFoodViewModel
 import com.kurban.calory.features.customfood.ui.model.CustomFoodEffect
 import com.kurban.calory.features.customfood.ui.model.CustomFoodIntent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
@@ -93,13 +101,16 @@ fun CustomFoodScreen(
     var proteinsInput by rememberSaveable { mutableStateOf("") }
     var fatsInput by rememberSaveable { mutableStateOf("") }
     var carbsInput by rememberSaveable { mutableStateOf("") }
+    val invalidPortionMessage = stringResource(Res.string.portion_invalid_grams)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is CustomFoodEffect.Error -> snackbarHostState.showSnackbar(effect.message)
                 is CustomFoodEffect.FoodCreated -> {
-                    snackbarHostState.showSnackbar("Добавлено: ${effect.name}")
+                    snackbarHostState.showSnackbar(
+                        getString(Res.string.custom_food_created, effect.name)
+                    )
                     nameInput = ""
                     caloriesInput = ""
                     proteinsInput = ""
@@ -109,7 +120,9 @@ fun CustomFoodScreen(
                 }
 
                 is CustomFoodEffect.AddedToDiary -> {
-                    snackbarHostState.showSnackbar("Добавлено в дневник: ${effect.name}")
+                    snackbarHostState.showSnackbar(
+                        getString(Res.string.custom_food_added_to_diary, effect.name)
+                    )
                 }
             }
         }
@@ -283,7 +296,7 @@ fun CustomFoodScreen(
                 TextButton(onClick = {
                     val grams = portionInput.replace(',', '.').toDoubleOrNull()?.roundToInt()
                     if (grams == null || grams <= 0) {
-                        portionError = "Введите вес в граммах"
+                        portionError = invalidPortionMessage
                     } else {
                         viewModel.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
                         portionError = null
@@ -440,9 +453,4 @@ private fun MacroInputRow(
             )
         }
     }
-}
-
-private fun Double.roundToOne(): String {
-    val rounded = (this * 10.0).roundToInt() / 10.0
-    return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString()
 }
