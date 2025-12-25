@@ -34,6 +34,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.viewModel)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

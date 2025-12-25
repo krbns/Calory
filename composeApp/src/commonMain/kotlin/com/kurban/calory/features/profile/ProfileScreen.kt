@@ -55,6 +55,7 @@ import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserSex
+import com.kurban.calory.features.profile.ui.ProfileComponent
 import com.kurban.calory.features.profile.ui.ProfileViewModel
 import com.kurban.calory.features.profile.ui.model.ProfileEffect
 import com.kurban.calory.features.profile.ui.model.ProfileIntent
@@ -65,8 +66,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun ProfileScreen(
+    component: ProfileComponent,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {}
 ) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val state by viewModel.uiState.collectAsState()
@@ -132,7 +133,7 @@ fun ProfileScreen(
                                 horizontal = MaterialTheme.spacing.medium,
                                 vertical = MaterialTheme.spacing.extraSmall
                             )
-                            .clickable { onBack() }
+                            .clickable { component.onBack() }
                     )
                 }
                 ProfileCard {

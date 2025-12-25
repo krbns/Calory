@@ -13,8 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,7 +39,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,14 +63,13 @@ import calory.composeapp.generated.resources.per_100g_hint
 import calory.composeapp.generated.resources.portion_grams
 import calory.composeapp.generated.resources.search_foods
 import calory.composeapp.generated.resources.select
-import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
+import com.kurban.calory.features.customfood.domain.model.CustomFood
+import com.kurban.calory.features.customfood.ui.CustomFoodComponent
 import com.kurban.calory.features.customfood.ui.CustomFoodViewModel
 import com.kurban.calory.features.customfood.ui.model.CustomFoodEffect
 import com.kurban.calory.features.customfood.ui.model.CustomFoodIntent
-import com.kurban.calory.features.customfood.ui.model.CustomFoodUiState
-import com.kurban.calory.features.customfood.domain.model.CustomFood
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
@@ -79,9 +77,8 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomFoodScreen(
+    component: CustomFoodComponent,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
-    onAddedToDiary: () -> Unit = {}
 ) {
     val viewModel = koinViewModel<CustomFoodViewModel>()
     val state by viewModel.state.collectAsState()
@@ -113,7 +110,6 @@ fun CustomFoodScreen(
 
                 is CustomFoodEffect.AddedToDiary -> {
                     snackbarHostState.showSnackbar("Добавлено в дневник: ${effect.name}")
-                    onAddedToDiary()
                 }
             }
         }
@@ -131,7 +127,7 @@ fun CustomFoodScreen(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
+                IconButton(onClick = component.onBack) {
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = stringResource(Res.string.back)

@@ -16,6 +16,7 @@ koin = "4.1.1"
 coroutinesVersion = "1.10.2"
 viewmodelVersion = "2.10.0"
 datetime = "0.6.1"
+decompose = "3.4.0"
 
 [libraries]
 android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sql-delight" }
@@ -34,6 +35,8 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
 viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "viewmodelVersion"}
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

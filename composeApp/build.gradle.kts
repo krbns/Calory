@@ -23,6 +23,9 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.compose.viewmodel)
+            implementation(projects.shared)
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -36,6 +39,8 @@ kotlin {
             implementation(projects.shared)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose)
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -44,6 +49,8 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.koin.core)
+            implementation(projects.shared)
+
         }
     }
 }

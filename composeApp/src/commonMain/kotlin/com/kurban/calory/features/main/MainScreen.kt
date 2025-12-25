@@ -84,10 +84,10 @@ import calory.composeapp.generated.resources.select
 import calory.composeapp.generated.resources.subtitle
 import calory.composeapp.generated.resources.today
 import calory.composeapp.generated.resources.total_consumed
-import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.core.theme.elevation
 import com.kurban.calory.core.theme.spacing
 import com.kurban.calory.features.main.domain.model.Food
+import com.kurban.calory.features.main.ui.MainComponent
 import com.kurban.calory.features.profile.domain.model.MacroTargets
 import com.kurban.calory.features.main.ui.MainViewModel
 import com.kurban.calory.features.main.ui.model.MainEffect
@@ -104,9 +104,8 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MainScreen(
+    component: MainComponent,
     modifier: Modifier = Modifier,
-    onOpenProfile: () -> Unit = {},
-    onOpenCustomFoods: () -> Unit = {},
 ) {
     val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsState()
@@ -131,8 +130,8 @@ fun MainScreen(
         onErrorDismiss = {
             viewModel.dispatch(MainIntent.ClearError)
         },
-        onOpenProfile = onOpenProfile,
-        onOpenCustomFoods = onOpenCustomFoods,
+        onOpenProfile = component.onOpenProfile,
+        onOpenCustomFoods = component.onOpenCustomFoods,
         modifier = modifier
     )
 }
@@ -256,7 +255,6 @@ private fun MainContent(
                     onClick = {
                         scope.launch {
                             optionsSheetState.hide()
-                            isOptionsSheetOpen = false
                             onOpenCustomFoods()
                         }
                     },

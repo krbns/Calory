@@ -8,7 +8,9 @@ import sqldelight.customFoodScheme.custom.CustomFoodDatabase
 import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
 import sqldelight.userProfileScheme.profile.UserProfileDatabase
 
-actual typealias DriverContext = Context
+actual class DriverContext(
+    val context: Context,
+)
 
 actual class DatabaseDriverFactory actual constructor(
     private val driverContext: DriverContext,
@@ -16,7 +18,7 @@ actual class DatabaseDriverFactory actual constructor(
     actual fun createDriverForFoodDatabase(): SqlDriver {
         return AndroidSqliteDriver(
             FoodDatabase.Schema,
-            driverContext,
+            driverContext.context,
             "food.db"
         )
     }
@@ -24,7 +26,7 @@ actual class DatabaseDriverFactory actual constructor(
     actual fun createDriverForTrackedDatabase(): SqlDriver {
         return AndroidSqliteDriver(
             TrackedFoodDatabase.Schema,
-            driverContext,
+            driverContext.context,
             "trackedFood.db"
         )
     }
@@ -32,7 +34,7 @@ actual class DatabaseDriverFactory actual constructor(
     actual fun createDriverForUserProfileDatabase(): SqlDriver {
         return AndroidSqliteDriver(
             UserProfileDatabase.Schema,
-            driverContext,
+            driverContext.context,
             "userProfile.db"
         )
     }
@@ -40,7 +42,7 @@ actual class DatabaseDriverFactory actual constructor(
     actual fun createDriverForCustomFoodDatabase(): SqlDriver {
         return AndroidSqliteDriver(
             CustomFoodDatabase.Schema,
-            driverContext,
+            driverContext.context,
             "customFood.db"
         )
     }
