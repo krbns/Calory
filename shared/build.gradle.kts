@@ -48,6 +48,9 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.sql.delight.sqlite.driver)
         }
+        jvmTest.dependencies {
+            implementation(libs.koin.test)
+        }
 
         androidMain.dependencies {
             implementation(libs.android.driver)

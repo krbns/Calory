@@ -12,9 +12,6 @@ fun initKoin(
 
     return startKoin {
         appDeclaration()
-        modules(
-            dataModule(driverFactory),
-            domainModule
-        )
+        modules(appModules(driverFactory))
     }
 }

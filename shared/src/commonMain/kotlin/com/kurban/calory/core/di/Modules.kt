@@ -4,6 +4,8 @@ import app.cash.sqldelight.db.SqlDriver
 import com.kurban.calory.core.data.db.DatabaseDriverFactory
 import com.kurban.calory.core.data.db.sqldelight.DatabaseInitializer
 import com.kurban.calory.core.domain.AppDispatchers
+import com.kurban.calory.core.ui.time.DayProvider
+import com.kurban.calory.core.ui.time.DefaultDayProvider
 import com.kurban.calory.features.customfood.data.CustomFoodDataSource
 import com.kurban.calory.features.customfood.data.DefaultCustomFoodRepository
 import com.kurban.calory.features.customfood.data.local.LocalCustomFoodDataSource
@@ -24,8 +26,6 @@ import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.FoodRepository
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
-import com.kurban.calory.core.ui.time.DayProvider
-import com.kurban.calory.core.ui.time.DefaultDayProvider
 import com.kurban.calory.features.profile.data.DefaultUserProfileRepository
 import com.kurban.calory.features.profile.data.UserProfileDataSource
 import com.kurban.calory.features.profile.data.local.LocalUserProfileDataSource
@@ -36,6 +36,7 @@ import com.kurban.calory.features.profile.domain.SaveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.UserProfileRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import sqldelight.foodScheme.food.FoodDatabase
@@ -47,7 +48,13 @@ private const val FOOD_DATABASE_DRIVER = "FoodDatabaseDriver"
 private const val TRACKED_FOOD_DATABASE_DRIVER = "TrackedFoodDatabaseDriver"
 private const val USER_PROFILE_DATABASE_DRIVER = "UserProfileDatabaseDriver"
 private const val CUSTOM_FOOD_DATABASE_DRIVER = "CustomFoodDatabaseDriver"
-fun dataModule(driverFactory: DatabaseDriverFactory) = module {
+
+val coreModule = module {
+    single { AppDispatchers(io = Dispatchers.IO, main = Dispatchers.Main, default = Dispatchers.Default) }
+    single<DayProvider> { DefaultDayProvider() }
+}
+
+private fun databaseModule(driverFactory: DatabaseDriverFactory) = module {
     single { driverFactory }
 
     single<SqlDriver>(qualifier = named(FOOD_DATABASE_DRIVER)) { get<DatabaseDriverFactory>().createDriverForFoodDatabase() }
@@ -74,7 +81,9 @@ fun dataModule(driverFactory: DatabaseDriverFactory) = module {
         val sqlDriver: SqlDriver = get(named(CUSTOM_FOOD_DATABASE_DRIVER))
         CustomFoodDatabase(sqlDriver)
     }
+}
 
+private val dataModule = module {
     single<FoodDataSource> { LocalFoodDataSource(get<FoodDatabase>()) }
     single<FoodRepository> { DefaultFoodRepository(get()) }
     single<TrackedFoodDataSource> { LocalTrackedFoodDataSource(get<TrackedFoodDatabase>()) }
@@ -86,10 +95,6 @@ fun dataModule(driverFactory: DatabaseDriverFactory) = module {
 }
 
 val domainModule = module {
-
-    single { AppDispatchers(io = Dispatchers.IO, main = Dispatchers.Main, default = Dispatchers.Default) }
-    single<DayProvider> { DefaultDayProvider() }
-
     factory { SearchFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { AddTrackedFoodUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     factory { ObserveTrackedForDayUseCase(get(), get<AppDispatchers>().io) }
@@ -103,3 +108,10 @@ val domainModule = module {
     factory { CreateCustomFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { AddCustomFoodToDiaryUseCase(get(), get(), get(), get<AppDispatchers>().io) }
 }
+
+fun appModules(driverFactory: DatabaseDriverFactory): List<Module> = listOf(
+    coreModule,
+    databaseModule(driverFactory),
+    dataModule,
+    domainModule
+)
