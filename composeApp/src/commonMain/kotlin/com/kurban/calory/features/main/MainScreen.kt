@@ -52,6 +52,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -355,11 +356,14 @@ private fun SummaryCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.elevation.large)
     ) {
-        Column(modifier = Modifier.padding(MaterialTheme.spacing.extraLarge)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.spacing.extraLarge)
+        ) {
             Text(
                 text = stringResource(Res.string.today),
                 style = MaterialTheme.typography.labelMedium,

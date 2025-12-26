@@ -75,9 +75,13 @@ import com.kurban.calory.features.customfood.domain.model.CustomFood
 import com.kurban.calory.features.customfood.ui.CustomFoodComponent
 import com.kurban.calory.features.customfood.ui.model.CustomFoodEffect
 import com.kurban.calory.features.customfood.ui.model.CustomFoodIntent
+import com.kurban.calory.features.customfood.ui.model.CustomFoodUiState
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.getString
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +91,25 @@ fun CustomFoodScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by component.state.subscribeAsState()
+
+    CustomFoodContent(
+        state = state,
+        effects = component.effects,
+        onBack = component.onBack,
+        onDispatch = component::dispatch,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomFoodContent(
+    state: CustomFoodUiState,
+    effects: Flow<CustomFoodEffect>,
+    onBack: () -> Unit,
+    onDispatch: (CustomFoodIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     var isCreateSheetOpen by remember { mutableStateOf(false) }
     val createSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -100,8 +123,8 @@ fun CustomFoodScreen(
     var carbsInput by rememberSaveable { mutableStateOf("") }
     val invalidPortionMessage = stringResource(Res.string.portion_invalid_grams)
 
-    LaunchedEffect(component) {
-        component.effects.collect { effect ->
+    LaunchedEffect(effects) {
+        effects.collect { effect ->
             when (effect) {
                 is CustomFoodEffect.Error -> snackbarHostState.showSnackbar(effect.message)
                 is CustomFoodEffect.FoodCreated -> {
@@ -137,7 +160,7 @@ fun CustomFoodScreen(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = component.onBack) {
+                IconButton(onClick = onBack) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(Res.string.back),
@@ -184,7 +207,7 @@ fun CustomFoodScreen(
         ) {
             SearchBar(
                 query = state.query,
-                onQueryChanged = { component.dispatch(CustomFoodIntent.QueryChanged(it)) }
+                onQueryChanged = { onDispatch(CustomFoodIntent.QueryChanged(it)) }
             )
             state.errorMessage?.let { message ->
                 Text(
@@ -269,7 +292,7 @@ fun CustomFoodScreen(
                 )
                 Button(
                     onClick = {
-                        component.dispatch(
+                        onDispatch(
                             CustomFoodIntent.CreateFood(
                                 name = nameInput,
                                 calories = caloriesInput,
@@ -303,7 +326,7 @@ fun CustomFoodScreen(
                     if (grams == null || grams <= 0) {
                         portionError = invalidPortionMessage
                     } else {
-                        component.dispatch(CustomFoodIntent.AddToDiary(food.id, grams))
+                        onDispatch(CustomFoodIntent.AddToDiary(food.id, grams))
                         portionError = null
                         selectedForPortion = null
                         portionInput = "100"
@@ -343,6 +366,28 @@ fun CustomFoodScreen(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun CustomFoodScreenPreview() {
+    val foods = listOf(
+        CustomFood(1, "Chicken breast", 165.0, 31.0, 3.6, 0.0),
+        CustomFood(2, "Oats", 379.0, 13.2, 6.5, 67.0),
+        CustomFood(3, "Greek yogurt", 97.0, 10.0, 4.0, 3.6)
+    )
+    val state = CustomFoodUiState(
+        query = "chicken",
+        foods = foods,
+        filteredFoods = foods
+    )
+
+    CustomFoodContent(
+        state = state,
+        effects = emptyFlow(),
+        onBack = {},
+        onDispatch = {}
+    )
+}
+
 @Composable
 private fun SearchBar(
     query: String,
@@ -369,7 +414,7 @@ private fun CustomFoodRow(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = MaterialTheme.elevation.small)
     ) {
         Row(
