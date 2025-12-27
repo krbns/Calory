@@ -15,25 +15,20 @@ import com.kurban.calory.features.profile.ui.model.ProfileEffect
 import com.kurban.calory.features.profile.ui.model.ProfileIntent
 import com.kurban.calory.features.profile.ui.model.ProfileUiState
 import kotlinx.coroutines.flow.SharedFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 class ProfileComponent(
     val componentContext: ComponentContext,
+    private val dependencies: ProfileDependencies,
     val onBack: () -> Unit,
-) : ComponentContext by componentContext, KoinComponent {
-
-    private val getUserProfileUseCase: GetUserProfileUseCase by inject()
-    private val saveUserProfileUseCase: SaveUserProfileUseCase by inject()
-    private val dispatchers: AppDispatchers by inject()
+) : ComponentContext by componentContext {
     private val scope = componentScope()
 
     private val store = Store(
         initialState = ProfileUiState(),
         reducer = profileReducer(),
         middlewares = listOf(
-            LoadProfileMiddleware(getUserProfileUseCase, dispatchers),
-            SaveProfileMiddleware(saveUserProfileUseCase, dispatchers)
+            LoadProfileMiddleware(dependencies.getUserProfileUseCase, dependencies.dispatchers),
+            SaveProfileMiddleware(dependencies.saveUserProfileUseCase, dependencies.dispatchers)
         ),
         scope = scope,
         initialActions = listOf(ProfileAction.LoadProfile)
@@ -57,3 +52,9 @@ class ProfileComponent(
         )
     }
 }
+
+data class ProfileDependencies(
+    val getUserProfileUseCase: GetUserProfileUseCase,
+    val saveUserProfileUseCase: SaveUserProfileUseCase,
+    val dispatchers: AppDispatchers
+)

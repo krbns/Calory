@@ -16,26 +16,21 @@ import com.kurban.calory.features.customfood.ui.model.CustomFoodEffect
 import com.kurban.calory.features.customfood.ui.model.CustomFoodIntent
 import com.kurban.calory.features.customfood.ui.model.CustomFoodUiState
 import kotlinx.coroutines.flow.SharedFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 class CustomFoodComponent(
     val componentContext: ComponentContext,
+    dependencies: CustomFoodDependencies,
     val onBack: () -> Unit,
-) : ComponentContext by componentContext, KoinComponent {
-
-    private val observeCustomFoodsUseCase: ObserveCustomFoodsUseCase by inject()
-    private val createCustomFoodUseCase: CreateCustomFoodUseCase by inject()
-    private val addCustomFoodToDiaryUseCase: AddCustomFoodToDiaryUseCase by inject()
+) : ComponentContext by componentContext {
     private val scope = componentScope()
 
     private val store = Store(
         initialState = CustomFoodUiState(),
         reducer = customFoodReducer(),
         middlewares = listOf(
-            ObserveCustomFoodsMiddleware(observeCustomFoodsUseCase, scope),
-            CreateCustomFoodMiddleware(createCustomFoodUseCase),
-            AddCustomFoodToDiaryMiddleware(addCustomFoodToDiaryUseCase)
+            ObserveCustomFoodsMiddleware(dependencies.observeCustomFoodsUseCase, scope),
+            CreateCustomFoodMiddleware(dependencies.createCustomFoodUseCase),
+            AddCustomFoodToDiaryMiddleware(dependencies.addCustomFoodToDiaryUseCase)
         ),
         scope = scope,
         initialActions = listOf(CustomFoodAction.ObserveFoods)
@@ -71,3 +66,9 @@ class CustomFoodComponent(
         return normalized.replace(',', '.').toDoubleOrNull() ?: Double.NaN
     }
 }
+
+data class CustomFoodDependencies(
+    val observeCustomFoodsUseCase: ObserveCustomFoodsUseCase,
+    val createCustomFoodUseCase: CreateCustomFoodUseCase,
+    val addCustomFoodToDiaryUseCase: AddCustomFoodToDiaryUseCase
+)

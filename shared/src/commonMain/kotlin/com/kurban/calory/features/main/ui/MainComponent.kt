@@ -24,39 +24,37 @@ import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
 import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
 import com.kurban.calory.features.profile.ui.logic.ObserveUserProfileMiddleware
 import kotlinx.coroutines.flow.SharedFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 class MainComponent(
     val componentContext: ComponentContext,
+    private val dependencies: MainDependencies,
     val onOpenProfile: () -> Unit,
     val onOpenCustomFoods: () -> Unit,
-) : ComponentContext by componentContext, KoinComponent {
-
-    private val searchFood: SearchFoodUseCase by inject()
-    private val observeTrackedForDayUseCase: ObserveTrackedForDayUseCase by inject()
-    private val deleteTrackedFood: DeleteTrackedFoodUseCase by inject()
-    private val addTrackedFoodUseCase: AddTrackedFoodUseCase by inject()
-    private val calculateTotalsUseCase: CalculateTotalsUseCase by inject()
-    private val calculateMacroTargetsUseCase: CalculateMacroTargetsUseCase by inject()
-    private val observeUserProfileUseCase: ObserveUserProfileUseCase by inject()
-    private val dispatchers: AppDispatchers by inject()
-    private val dayProvider: DayProvider by inject()
+) : ComponentContext by componentContext {
     private val scope = componentScope()
 
     private val store = Store(
         initialState = MainUiState(),
         reducer = mainReducer(),
         middlewares = listOf(
-            SearchMiddleware(searchFood, dispatchers, scope),
-            ObserveDayMiddleware(observeTrackedForDayUseCase, calculateTotalsUseCase, dispatchers, scope),
-            ObserveUserProfileMiddleware(observeUserProfileUseCase, calculateMacroTargetsUseCase, scope),
-            AddFoodMiddleware(addTrackedFoodUseCase),
-            RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
+            SearchMiddleware(dependencies.searchFoodUseCase, dependencies.dispatchers, scope),
+            ObserveDayMiddleware(
+                dependencies.observeTrackedForDayUseCase,
+                dependencies.calculateTotalsUseCase,
+                dependencies.dispatchers,
+                scope
+            ),
+            ObserveUserProfileMiddleware(
+                dependencies.observeUserProfileUseCase,
+                dependencies.calculateMacroTargetsUseCase,
+                scope
+            ),
+            AddFoodMiddleware(dependencies.addTrackedFoodUseCase),
+            RemoveEntryMiddleware(dependencies.deleteTrackedFoodUseCase, dependencies.dayProvider)
         ),
         scope = scope,
         initialActions = listOf(
-            MainAction.LoadDay(dayProvider.currentDayId()),
+            MainAction.LoadDay(dependencies.dayProvider.currentDayId()),
             MainAction.ObserveProfile
         )
     )
@@ -67,7 +65,7 @@ class MainComponent(
     fun dispatch(intent: MainIntent) {
         store.dispatch(
             when (intent) {
-                MainIntent.LoadToday -> MainAction.LoadDay(dayProvider.currentDayId())
+                MainIntent.LoadToday -> MainAction.LoadDay(dependencies.dayProvider.currentDayId())
                 is MainIntent.QueryChanged -> MainAction.QueryChanged(intent.query)
                 is MainIntent.FoodSelected -> MainAction.FoodSelected(intent.food)
                 is MainIntent.GramsChanged -> MainAction.GramsChanged(intent.gramsInput)
@@ -78,3 +76,15 @@ class MainComponent(
         )
     }
 }
+
+data class MainDependencies(
+    val searchFoodUseCase: SearchFoodUseCase,
+    val observeTrackedForDayUseCase: ObserveTrackedForDayUseCase,
+    val deleteTrackedFoodUseCase: DeleteTrackedFoodUseCase,
+    val addTrackedFoodUseCase: AddTrackedFoodUseCase,
+    val calculateTotalsUseCase: CalculateTotalsUseCase,
+    val calculateMacroTargetsUseCase: CalculateMacroTargetsUseCase,
+    val observeUserProfileUseCase: ObserveUserProfileUseCase,
+    val dispatchers: AppDispatchers,
+    val dayProvider: DayProvider
+)
