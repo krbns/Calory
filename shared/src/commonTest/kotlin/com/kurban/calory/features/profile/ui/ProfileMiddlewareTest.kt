@@ -27,7 +27,7 @@ class ProfileMiddlewareTest {
 
     @Test
     fun `LoadProfileMiddleware dispatches success`() = runTest(dispatcher) {
-        val profile = UserProfile(UserSex.MALE, 25, 180, 80.0, UserGoal.GAIN_MUSCLE)
+        val profile = UserProfile("John", UserSex.MALE, 25, 180, 80.0, UserGoal.GAIN_MUSCLE)
         val middleware = LoadProfileMiddleware(
             getUserProfileUseCase = GetUserProfileUseCase(
                 repository = object : com.kurban.calory.features.profile.domain.UserProfileRepository {
@@ -70,6 +70,7 @@ class ProfileMiddlewareTest {
             dispatchers = dispatchers
         )
         val state = ProfileUiState(
+            nameInput = "Anna",
             sex = UserSex.FEMALE,
             goal = UserGoal.LOSE_WEIGHT,
             ageInput = "30",
@@ -93,6 +94,7 @@ class ProfileMiddlewareTest {
         assertFalse(effects.tryReceive().isSuccess)
         assertEquals(state.sex, savedProfile?.sex)
         assertEquals(state.goal, savedProfile?.goal)
+        assertEquals("Anna", savedProfile?.name)
     }
 
     @Test

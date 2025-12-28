@@ -9,6 +9,7 @@ import com.kurban.calory.core.navigation.RootComponent
 import com.kurban.calory.core.theme.CaloryTheme
 import com.kurban.calory.features.customfood.CustomFoodScreen
 import com.kurban.calory.features.main.MainScreen
+import com.kurban.calory.features.onboarding.OnboardingScreen
 import com.kurban.calory.features.profile.ProfileScreen
 
 @Composable
@@ -20,6 +21,10 @@ fun AppRoot(component: RootComponent, modifier: Modifier = Modifier) {
             animation = stackAnimation(slide()),
         ) {
             when (val child = it.instance) {
+                RootComponent.Child.LoadingChild -> {
+                    // Simple placeholder while initial screen is resolved
+                }
+                is RootComponent.Child.OnboardingChild -> OnboardingScreen(component = child.component)
                 is RootComponent.Child.MainChild -> MainScreen(component = child.component)
                 is RootComponent.Child.CustomFoodChild -> CustomFoodScreen(component = child.component)
                 is RootComponent.Child.ProfileChild -> ProfileScreen(child.component)

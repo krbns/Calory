@@ -6,6 +6,7 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
+import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.kurban.calory.core.domain.AppDispatchers
 import com.kurban.calory.core.ui.time.DayProvider
@@ -18,18 +19,24 @@ import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.ui.MainComponent
 import com.kurban.calory.features.main.ui.MainDependencies
+import com.kurban.calory.features.onboarding.ui.OnboardingComponent
+import com.kurban.calory.features.onboarding.ui.OnboardingDependencies
 import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
+import com.kurban.calory.features.profile.domain.NeedsOnboardingUseCase
 import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
+import com.kurban.calory.features.profile.domain.SaveUserProfileUseCase
 import com.kurban.calory.features.profile.ui.ProfileComponent
 import com.kurban.calory.features.profile.ui.ProfileDependencies
 import kotlinx.serialization.Serializable
 import org.koin.core.Koin
+import kotlinx.coroutines.launch
 
 class DefaultRootComponent(
     componentContext: ComponentContext,
     private val koin: Koin,
 ) : RootComponent, ComponentContext by componentContext {
 
+    private val scope = componentScope()
     private val mainDependencies by lazy {
         MainDependencies(
             searchFoodUseCase = koin.get<SearchFoodUseCase>(),
@@ -60,21 +67,48 @@ class DefaultRootComponent(
         )
     }
 
+    private val onboardingDependencies by lazy {
+        OnboardingDependencies(
+            saveUserProfileUseCase = koin.get<SaveUserProfileUseCase>(),
+            dispatchers = koin.get()
+        )
+    }
+
     private val navigation = StackNavigation<Config>()
 
     override val stack: Value<ChildStack<Config, RootComponent.Child>> = childStack(
         source = navigation,
         serializer = null,
-        initialConfiguration = Config.Main,
+        initialConfiguration = Config.Loading,
         handleBackButton = true,
         childFactory = ::child,
     )
+
+    init {
+        val scope = componentScope()
+        scope.launch {
+            val needsOnboarding = koin.get<NeedsOnboardingUseCase>()(Unit) ?: false
+            if (needsOnboarding) {
+                navigation.replaceAll(Config.Onboarding)
+            } else {
+                navigation.replaceAll(Config.Main)
+            }
+        }
+    }
 
     private fun child(
         config: Config,
         componentContext: ComponentContext,
     ): RootComponent.Child =
         when (config) {
+            Config.Loading -> RootComponent.Child.LoadingChild
+            Config.Onboarding -> RootComponent.Child.OnboardingChild(
+                OnboardingComponent(
+                    componentContext = componentContext,
+                    dependencies = onboardingDependencies,
+                    onFinished = { navigation.replaceAll(Config.Main) }
+                )
+            )
             Config.Main -> RootComponent.Child.MainChild(
                 MainComponent(
                     componentContext = componentContext,
@@ -104,6 +138,12 @@ class DefaultRootComponent(
 
 @Serializable
 sealed interface Config {
+    @Serializable
+    object Loading : Config
+
+    @Serializable
+    object Onboarding : Config
+
     @Serializable
     data object Main : Config
 

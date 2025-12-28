@@ -54,6 +54,7 @@ import calory.composeapp.generated.resources.profile_sex_female
 import calory.composeapp.generated.resources.profile_sex_male
 import calory.composeapp.generated.resources.profile_title
 import calory.composeapp.generated.resources.profile_weight
+import calory.composeapp.generated.resources.profile_name
 import calory.composeapp.generated.resources.unit_cm
 import calory.composeapp.generated.resources.unit_kg
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -129,6 +130,14 @@ fun ProfileScreen(
                     )
                 }
                 ProfileCard {
+                    OutlinedTextField(
+                        value = state.nameInput,
+                        onValueChange = { component.dispatch(ProfileIntent.NameChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text(stringResource(Res.string.profile_name)) }
+                    )
+
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         ProfileSectionTitle(
                             text = stringResource(Res.string.profile_sex),

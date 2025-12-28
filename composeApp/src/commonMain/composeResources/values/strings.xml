@@ -32,6 +32,7 @@
     <string name="profile_sex">Пол</string>
     <string name="profile_sex_male">Мужчина</string>
     <string name="profile_sex_female">Женщина</string>
+    <string name="profile_name">Имя</string>
     <string name="profile_age">Возраст</string>
     <string name="profile_height">Рост (см)</string>
     <string name="profile_weight">Вес (кг)</string>
@@ -44,6 +45,13 @@
     <string name="profile_saved">Профиль сохранен</string>
     <string name="profile_open">Профиль</string>
     <string name="back">Назад</string>
+    <string name="onboarding_title">Добро пожаловать</string>
+    <string name="onboarding_subtitle">Заполним профиль, чтобы рассчитать цели.</string>
+    <string name="onboarding_step_name">Расскажите о себе</string>
+    <string name="onboarding_step_body">Параметры тела</string>
+    <string name="onboarding_step_goal">Цель</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_finish">Готово</string>
 
     <string name="custom_foods_title">Мои продукты</string>
     <string name="custom_foods_empty">Пока нет собственных продуктов</string>

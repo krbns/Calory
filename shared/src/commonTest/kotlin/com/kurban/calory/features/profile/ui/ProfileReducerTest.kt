@@ -16,9 +16,10 @@ class ProfileReducerTest {
 
     @Test
     fun `load profile success fills fields`() {
-        val profile = UserProfile(UserSex.FEMALE, 30, 170, 60.0, UserGoal.LOSE_WEIGHT)
+        val profile = UserProfile("Anna", UserSex.FEMALE, 30, 170, 60.0, UserGoal.LOSE_WEIGHT)
         val updated = reducer(ProfileUiState(isLoading = true), ProfileAction.LoadProfileSuccess(profile))
 
+        assertEquals("Anna", updated.nameInput)
         assertEquals("30", updated.ageInput)
         assertEquals("170", updated.heightInput)
         assertEquals("60.0", updated.weightInput)
@@ -38,6 +39,9 @@ class ProfileReducerTest {
 
     @Test
     fun `inputs are filtered`() {
+        val afterName = reducer(ProfileUiState(), ProfileAction.NameChanged(" Ann a "))
+        assertEquals(" Ann a ", afterName.nameInput)
+
         val afterAge = reducer(ProfileUiState(), ProfileAction.AgeChanged("1a2"))
         assertEquals("12", afterAge.ageInput)
 

@@ -6,6 +6,7 @@ import com.kurban.calory.features.profile.ui.model.ProfileUiState
 
 fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action ->
     when (action) {
+        is ProfileAction.NameChanged -> state.copy(nameInput = action.value, saved = false)
         is ProfileAction.SexSelected -> state.copy(sex = action.sex, saved = false)
         is ProfileAction.GoalSelected -> state.copy(goal = action.goal, saved = false)
         is ProfileAction.AgeChanged -> state.copy(ageInput = action.value.filter(Char::isDigit), saved = false)
@@ -22,6 +23,7 @@ fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action -
                     isLoading = false,
                     sex = profile.sex,
                     goal = profile.goal,
+                    nameInput = profile.name,
                     ageInput = profile.age.toString(),
                     heightInput = profile.heightCm.toString(),
                     weightInput = profile.weightKg.toString(),
@@ -37,6 +39,7 @@ fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action -
             isSaving = false,
             errorMessage = null,
             saved = true,
+            nameInput = action.profile.name,
             sex = action.profile.sex,
             goal = action.profile.goal,
             ageInput = action.profile.age.toString(),

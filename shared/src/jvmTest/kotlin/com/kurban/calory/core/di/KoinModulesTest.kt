@@ -7,6 +7,7 @@ import com.kurban.calory.features.main.domain.FoodRepository
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
 import com.kurban.calory.features.profile.domain.UserProfileRepository
+import com.kurban.calory.features.profile.domain.NeedsOnboardingUseCase
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
@@ -35,5 +36,6 @@ class KoinModulesTest {
         koin.get<UserProfileRepository>()
         koin.get<CustomFoodRepository>()
         koin.get<SearchFoodUseCase>()
+        koin.get<NeedsOnboardingUseCase>()
     }
 }

@@ -41,6 +41,7 @@ class ProfileComponent(
         store.dispatch(
             when (intent) {
                 ProfileIntent.LoadProfile -> ProfileAction.LoadProfile
+                is ProfileIntent.NameChanged -> ProfileAction.NameChanged(intent.value)
                 is ProfileIntent.SexSelected -> ProfileAction.SexSelected(intent.sex)
                 is ProfileIntent.GoalSelected -> ProfileAction.GoalSelected(intent.goal)
                 is ProfileIntent.AgeChanged -> ProfileAction.AgeChanged(intent.value)

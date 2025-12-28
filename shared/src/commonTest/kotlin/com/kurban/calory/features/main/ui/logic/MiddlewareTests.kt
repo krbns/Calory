@@ -165,7 +165,7 @@ class MiddlewareTests {
 
     @Test
     fun `ObserveUserProfileMiddleware dispatches targets from flow`() = runTest(testDispatcher) {
-        val profile = UserProfile(UserSex.MALE, age = 25, heightCm = 180, weightKg = 80.0, goal = UserGoal.GAIN_MUSCLE)
+        val profile = UserProfile("Alex", UserSex.MALE, age = 25, heightCm = 180, weightKg = 80.0, goal = UserGoal.GAIN_MUSCLE)
         val observeUseCase = ObserveUserProfileUseCase(
             repository = object : UserProfileRepository {
                 override suspend fun getProfile(): UserProfile? = profile

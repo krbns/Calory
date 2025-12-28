@@ -32,6 +32,7 @@ import com.kurban.calory.features.profile.data.local.LocalUserProfileDataSource
 import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
 import com.kurban.calory.features.profile.domain.GetUserProfileUseCase
 import com.kurban.calory.features.profile.domain.ObserveUserProfileUseCase
+import com.kurban.calory.features.profile.domain.NeedsOnboardingUseCase
 import com.kurban.calory.features.profile.domain.SaveUserProfileUseCase
 import com.kurban.calory.features.profile.domain.UserProfileRepository
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +89,7 @@ private val dataModule = module {
     single<FoodRepository> { DefaultFoodRepository(get()) }
     single<TrackedFoodDataSource> { LocalTrackedFoodDataSource(get<TrackedFoodDatabase>()) }
     single<TrackedFoodRepository> { DefaultTrackedFoodRepository(get()) }
-    single<UserProfileDataSource> { LocalUserProfileDataSource(get<UserProfileDatabase>()) }
+    single<UserProfileDataSource> { LocalUserProfileDataSource(get<UserProfileDatabase>(), get(named(USER_PROFILE_DATABASE_DRIVER))) }
     single<UserProfileRepository> { DefaultUserProfileRepository(get()) }
     single<CustomFoodDataSource> { LocalCustomFoodDataSource(get<CustomFoodDatabase>()) }
     single<CustomFoodRepository> { DefaultCustomFoodRepository(get()) }
@@ -104,6 +105,7 @@ val domainModule = module {
     factory { GetUserProfileUseCase(get(), get<AppDispatchers>().io) }
     factory { SaveUserProfileUseCase(get(), get<AppDispatchers>().io) }
     factory { ObserveUserProfileUseCase(get(), get<AppDispatchers>().io) }
+    factory { NeedsOnboardingUseCase(get(), get<AppDispatchers>().io) }
     factory { ObserveCustomFoodsUseCase(get(), get<AppDispatchers>().io) }
     factory { CreateCustomFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { AddCustomFoodToDiaryUseCase(get(), get(), get(), get<AppDispatchers>().io) }

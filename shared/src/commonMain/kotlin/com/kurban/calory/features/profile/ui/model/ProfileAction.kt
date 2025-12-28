@@ -6,6 +6,7 @@ import com.kurban.calory.features.profile.domain.model.UserSex
 
 sealed class ProfileAction {
     object LoadProfile : ProfileAction()
+    data class NameChanged(val value: String) : ProfileAction()
     data class SexSelected(val sex: UserSex) : ProfileAction()
     data class GoalSelected(val goal: UserGoal) : ProfileAction()
     data class AgeChanged(val value: String) : ProfileAction()

@@ -1,6 +1,7 @@
 package com.kurban.calory.features.profile.domain.model
 
 data class UserProfile(
+    val name: String,
     val sex: UserSex,
     val age: Int,
     val heightCm: Int,

@@ -22,10 +22,15 @@ class SaveProfileMiddleware(
     ) {
         if (action !is ProfileAction.SaveProfile) return
 
+        val name = state.nameInput.trim()
         val age = state.ageInput.toIntOrNull()
         val height = state.heightInput.toIntOrNull()
         val weight = state.weightInput.replace(',', '.').toDoubleOrNull()
 
+        if (name.isEmpty()) {
+            dispatch(ProfileAction.SaveProfileFailure("Введите имя"))
+            return
+        }
         if (age == null || age <= 0) {
             dispatch(ProfileAction.SaveProfileFailure("Введите возраст"))
             return
@@ -43,6 +48,7 @@ class SaveProfileMiddleware(
 
         try {
             val profile = UserProfile(
+                name = name,
                 sex = state.sex,
                 age = age,
                 heightCm = height,
