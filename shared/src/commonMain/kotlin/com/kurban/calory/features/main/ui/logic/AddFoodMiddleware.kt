@@ -19,6 +19,11 @@ class AddFoodMiddleware(
     ) {
         if (action !is MainAction.AddSelectedFood) return
 
+        if (state.selectedDayId.isNotBlank() && state.todayId.isNotBlank() && state.selectedDayId != state.todayId) {
+            emitEffect(MainEffect.Error("Добавлять продукты можно только за сегодняшний день"))
+            return
+        }
+
         val selected = state.selectedFood ?: run {
             emitEffect(MainEffect.Error("Сначала выберите продукт"))
             return

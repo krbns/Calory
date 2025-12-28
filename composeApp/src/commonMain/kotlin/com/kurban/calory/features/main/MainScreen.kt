@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -95,6 +96,7 @@ import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
 import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.main.ui.model.UITrackedFood
+import com.kurban.calory.features.main.ui.model.UIDay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
@@ -128,6 +130,7 @@ fun MainScreen(
         onErrorDismiss = {
             component.dispatch(MainIntent.ClearError)
         },
+        onSelectDay = { component.dispatch(MainIntent.SelectDay(it)) },
         onOpenProfile = component.onOpenProfile,
         onOpenCustomFoods = component.onOpenCustomFoods,
         modifier = modifier
@@ -146,6 +149,7 @@ private fun MainContent(
     onAddFood: () -> Unit,
     onRemoveEntry: (Long) -> Unit,
     onErrorDismiss: () -> Unit,
+    onSelectDay: (String) -> Unit,
     onOpenProfile: () -> Unit,
     onOpenCustomFoods: () -> Unit
 ) {
@@ -155,6 +159,7 @@ private fun MainContent(
     val searchSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val colors = MaterialTheme.colorScheme
+    val isTodaySelected = state.selectedDayId.isBlank() || state.selectedDayId == state.todayId
     val surfaceGradient = remember {
         Brush.linearGradient(
             listOf(
@@ -168,9 +173,11 @@ private fun MainContent(
         containerColor = Color.Transparent,
         floatingActionButton = {
             ExtendedFloatingActionButton(
+                modifier = Modifier,
                 onClick = { isOptionsSheetOpen = true },
+                text = { Text(stringResource(Res.string.add_to_diary)) },
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text(stringResource(Res.string.add_to_diary)) }
+                expanded = true,
             )
         }
     ) { padding ->
@@ -191,6 +198,10 @@ private fun MainContent(
             ) {
                 Header(onOpenProfile = onOpenProfile)
                 SummaryCard(
+                    days = state.days,
+                    selectedDayId = state.selectedDayId,
+                    todayId = state.todayId,
+                    onSelectDay = onSelectDay,
                     calories = state.totalCalories,
                     proteins = state.totalProteins,
                     fats = state.totalFats,
@@ -304,6 +315,7 @@ private fun MainContent(
                 SelectionSection(
                     selected = state.selectedFood,
                     gramsInput = state.gramsInput,
+                    isTodaySelected = isTodaySelected,
                     onGramsChanged = onGramsChanged,
                     onAdd = {
                         onAddFood()
@@ -346,12 +358,17 @@ private fun Header(onOpenProfile: () -> Unit) {
 
 @Composable
 private fun SummaryCard(
+    days: List<UIDay>,
+    selectedDayId: String,
+    todayId: String,
+    onSelectDay: (String) -> Unit,
     calories: Double,
     proteins: Double,
     fats: Double,
     carbs: Double,
     targets: MacroTargets?,
 ) {
+    val dayLabel = selectedDayLabel(selectedDayId, todayId, days)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -364,8 +381,16 @@ private fun SummaryCard(
             .fillMaxWidth()
             .padding(MaterialTheme.spacing.extraLarge)
         ) {
+            if (days.isNotEmpty()) {
+                DaySelector(
+                    days = days,
+                    onSelectDay = onSelectDay,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(MaterialTheme.spacing.medium))
+            }
             Text(
-                text = stringResource(Res.string.today),
+                text = dayLabel,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -407,6 +432,86 @@ private fun SummaryCard(
             }
         }
     }
+}
+
+@Composable
+private fun DaySelector(
+    days: List<UIDay>,
+    onSelectDay: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (days.isEmpty()) return
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        days.forEach { day ->
+            DayChip(
+                day = day,
+                onSelect = { onSelectDay(day.id) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DayChip(
+    day: UIDay,
+    onSelect: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = MaterialTheme.colorScheme
+    val background = when {
+        day.isSelected -> colors.primary.copy(alpha = 0.18f)
+        day.isToday -> colors.primary.copy(alpha = 0.08f)
+        else -> colors.surfaceVariant.copy(alpha = 0.5f)
+    }
+    val textColor = if (day.isSelected) colors.primary else colors.onSurface
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(enabled = !day.isSelected, onClick = onSelect)
+            .background(background)
+            .padding(
+                horizontal = MaterialTheme.spacing.small,
+                vertical = MaterialTheme.spacing.small
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.compact)
+    ) {
+        Text(
+            text = day.weekLetter,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.onSurfaceVariant
+        )
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(
+                    color = if (day.isToday) colors.primary.copy(alpha = 0.12f) else Color.Transparent
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = day.dayNumber,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = textColor
+            )
+        }
+    }
+}
+
+@Composable
+private fun selectedDayLabel(selectedDayId: String, todayId: String, days: List<UIDay>): String {
+    if (selectedDayId.isBlank() || selectedDayId == todayId) {
+        return stringResource(Res.string.today)
+    }
+    return days.firstOrNull { it.id == selectedDayId }?.label ?: selectedDayId
 }
 
 @Composable
@@ -530,6 +635,7 @@ private fun FoodRow(
 private fun SelectionSection(
     selected: Food?,
     gramsInput: String,
+    isTodaySelected: Boolean,
     onGramsChanged: (String) -> Unit,
     onAdd: () -> Unit
 ) {
@@ -574,7 +680,7 @@ private fun SelectionSection(
                 )
                 Button(
                     onClick = onAdd,
-                    enabled = selected != null && gramsInput.isNotBlank(),
+                    enabled = selected != null && gramsInput.isNotBlank() && isTodaySelected,
                     modifier = Modifier.height(56.dp)
                 ) {
                     Text(stringResource(Res.string.add))
@@ -735,6 +841,12 @@ private fun ErrorCard(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
+    val todayId = "2024-01-02"
+    val previewDays = listOf(
+        UIDay(id = "2024-01-01", dayNumber = "1", weekLetter = "П", label = "01.01", isToday = false, isSelected = false),
+        UIDay(id = todayId, dayNumber = "2", weekLetter = "В", label = "02.01", isToday = true, isSelected = true),
+        UIDay(id = "2024-01-03", dayNumber = "3", weekLetter = "С", label = "03.01", isToday = false, isSelected = false)
+    )
     val previewState = remember {
         MainUiState(
             query = "apple",
@@ -757,7 +869,10 @@ fun MainScreenPreview() {
                 proteins = 140.0,
                 fats = 70.0,
                 carbs = 260.0
-            )
+            ),
+            todayId = todayId,
+            selectedDayId = todayId,
+            days = previewDays
         )
     }
 
@@ -770,6 +885,7 @@ fun MainScreenPreview() {
         onAddFood = {},
         onRemoveEntry = {},
         onErrorDismiss = {},
+        onSelectDay = {},
         onOpenProfile = {},
         onOpenCustomFoods = {}
     )

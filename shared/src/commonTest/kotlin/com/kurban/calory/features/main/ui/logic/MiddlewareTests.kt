@@ -8,6 +8,7 @@ import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.domain.model.TrackedFood
+import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.profile.domain.CalculateMacroTargetsUseCase
@@ -127,6 +128,46 @@ class MiddlewareTests {
 
         val dispatched = actions.receive()
         assertEquals(MainAction.LoadDay("today"), dispatched)
+    }
+
+    @Test
+    fun `AddFoodMiddleware blocks when day is not today`() = runTest(testDispatcher) {
+        val addTrackedFoodUseCase = AddTrackedFoodUseCase(
+            repository = object : com.kurban.calory.features.main.domain.TrackedFoodRepository {
+                override suspend fun add(food: TrackedFood) {}
+                override suspend fun getByDay(dayId: String): List<TrackedFood> = emptyList()
+                override fun observeByDay(dayId: String, dispatcher: CoroutineDispatcher): Flow<List<TrackedFood>> = flowOf(emptyList())
+                override suspend fun delete(id: Long) {}
+            },
+            foodRepository = object : com.kurban.calory.features.main.domain.FoodRepository {
+                override fun findFood(name: String): Food? = Food(1, 0, "Apple", 52.0, 0.3, 0.2, 14.0)
+                override fun search(query: String): List<Food> = emptyList()
+                override fun addUserFood(name: String, grams: Int): Food? = null
+            },
+            dayProvider = object : DayProvider {
+                override fun currentDayId(): String = "2024-01-02"
+            },
+            dispatcher = dispatchers.io
+        )
+        val middleware = AddFoodMiddleware(addTrackedFoodUseCase)
+        val actions = Channel<MainAction>(Channel.UNLIMITED)
+        var effect: MainEffect? = null
+        val state = MainUiState(
+            selectedFood = Food(1, 0, "Apple", 52.0, 0.3, 0.2, 14.0),
+            gramsInput = "100",
+            selectedDayId = "2024-01-01",
+            todayId = "2024-01-02"
+        )
+
+        middleware.invoke(
+            MainAction.AddSelectedFood,
+            state,
+            dispatch = { actions.send(it) },
+            emitEffect = { effect = it }
+        )
+
+        assertTrue(actions.isEmpty)
+        assertTrue(effect is MainEffect.Error)
     }
 
     @Test

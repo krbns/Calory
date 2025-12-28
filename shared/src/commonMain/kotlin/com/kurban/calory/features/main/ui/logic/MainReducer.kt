@@ -11,6 +11,7 @@ fun mainReducer(): Reducer<MainUiState, MainAction> = { state, action ->
             gramsInput = action.gramsInput.filter { char -> char.isDigit() || char == '.' || char == ',' }
         )
         is MainAction.FoodSelected -> state.copy(selectedFood = action.food)
+        is MainAction.LoadDay -> state.updateSelectedDay(action.dayId)
         is MainAction.SearchSuccess -> state.copy(
             searchResults = action.results,
             isSearching = false,
@@ -27,4 +28,15 @@ fun mainReducer(): Reducer<MainUiState, MainAction> = { state, action ->
         is MainAction.LoadProfileSuccess -> state.copy(macroTargets = action.targets)
         else -> state
     }
+}
+
+private fun MainUiState.updateSelectedDay(dayId: String): MainUiState {
+    val updatedDays = days.takeIf { it.isNotEmpty() }?.map { day ->
+        day.copy(isSelected = day.id == dayId)
+    }.orEmpty()
+
+    return copy(
+        selectedDayId = dayId,
+        days = updatedDays
+    )
 }

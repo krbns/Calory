@@ -22,7 +22,8 @@ class RemoveEntryMiddleware(
 
         try {
             deleteTrackedFood(DeleteTrackedFoodUseCase.Parameters(action.entryId))
-            dispatch(MainAction.LoadDay(dayProvider.currentDayId()))
+            val dayToReload = state.selectedDayId.takeUnless { it.isBlank() } ?: dayProvider.currentDayId()
+            dispatch(MainAction.LoadDay(dayToReload))
         } catch (e: Exception) {
             emitEffect(MainEffect.Error(e.message ?: "Не удалось удалить запись"))
             dispatch(MainAction.RemoveEntryFailure(e.message.orEmpty()))

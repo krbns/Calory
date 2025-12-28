@@ -2,6 +2,7 @@ package com.kurban.calory.features.main.ui.model
 
 sealed class MainIntent {
     object LoadToday : MainIntent()
+    data class SelectDay(val dayId: String) : MainIntent()
     data class QueryChanged(val query: String) : MainIntent()
     data class FoodSelected(val food: com.kurban.calory.features.main.domain.model.Food) : MainIntent()
     data class GramsChanged(val gramsInput: String) : MainIntent()
