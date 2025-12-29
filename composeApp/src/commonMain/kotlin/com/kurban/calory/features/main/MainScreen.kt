@@ -76,6 +76,8 @@ import calory.composeapp.generated.resources.meals_today
 import calory.composeapp.generated.resources.add_option_custom
 import calory.composeapp.generated.resources.add_option_search
 import calory.composeapp.generated.resources.add_option_title
+import calory.composeapp.generated.resources.grams_value
+import calory.composeapp.generated.resources.kcal_suffix
 import calory.composeapp.generated.resources.pick_from_search
 import calory.composeapp.generated.resources.portion_grams
 import calory.composeapp.generated.resources.profile_open
@@ -396,7 +398,11 @@ private fun SummaryCard(
             )
             Spacer(Modifier.height(MaterialTheme.spacing.small))
             Text(
-                text = buildMacroText(calories, targets?.calories, "ккал"),
+                text = buildMacroText(
+                    calories,
+                    targets?.calories,
+                    stringResource(Res.string.kcal_suffix)
+                ),
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -767,7 +773,7 @@ private fun ConsumptionRow(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "${item.grams} г",
+                text = stringResource(Res.string.grams_value, item.grams),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary
             )

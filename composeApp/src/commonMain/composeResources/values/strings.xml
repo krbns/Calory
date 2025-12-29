@@ -18,6 +18,7 @@
     <string name="add_option_title">Как добавить продукт?</string>
     <string name="add_option_search">Поиск продуктов</string>
     <string name="add_option_custom">Мои продукты</string>
+    <string name="kcal_suffix">ккал</string>
 
     <string name="meals_today">История</string>
     <string name="empty_list">Пока пусто. Добавьте первую порцию.</string>
@@ -27,6 +28,7 @@
     <string name="food_macros_100">%1$s ккал · Б %2$s / Ж %3$s / У %4$s на 100 г</string>
     <string name="food_macros_entry">%1$s ккал · Б %2$s / Ж %3$s / У %4$s</string>
     <string name="grams_total">%1$d г всего</string>
+    <string name="grams_value">%1$d г</string>
 
     <string name="profile_title">Профиль</string>
     <string name="profile_sex">Пол</string>
