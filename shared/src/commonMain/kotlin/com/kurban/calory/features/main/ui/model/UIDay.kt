@@ -6,5 +6,6 @@ data class UIDay(
     val weekLetter: String,
     val label: String,
     val isToday: Boolean,
+    val isFuture: Boolean,
     val isSelected: Boolean
 )

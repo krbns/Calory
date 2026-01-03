@@ -76,8 +76,8 @@ class MainReducerTest {
     @Test
     fun `load day action marks selection`() {
         val days = listOf(
-            UIDay(id = "2024-01-01", dayNumber = "1", weekLetter = "П", label = "01.01", isToday = false, isSelected = false),
-            UIDay(id = "2024-01-02", dayNumber = "2", weekLetter = "В", label = "02.01", isToday = true, isSelected = true)
+            UIDay(id = "2024-01-01", dayNumber = "1", weekLetter = "П", label = "01.01", isToday = false, isFuture = false, isSelected = false),
+            UIDay(id = "2024-01-02", dayNumber = "2", weekLetter = "В", label = "02.01", isToday = true, isFuture = false, isSelected = true)
         )
         val initial = MainUiState(
             days = days,

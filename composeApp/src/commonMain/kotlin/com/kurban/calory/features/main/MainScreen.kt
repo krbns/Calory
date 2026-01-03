@@ -480,7 +480,7 @@ private fun DayChip(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickable(enabled = !day.isSelected, onClick = onSelect)
+            .clickable(enabled = !day.isSelected && !day.isFuture, onClick = onSelect)
             .background(background)
             .padding(
                 horizontal = MaterialTheme.spacing.small,
@@ -506,7 +506,7 @@ private fun DayChip(
             Text(
                 text = day.dayNumber,
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = textColor
+                color = if (day.isFuture) colors.onSurfaceVariant else textColor
             )
         }
     }
@@ -849,9 +849,9 @@ private fun ErrorCard(
 fun MainScreenPreview() {
     val todayId = "2024-01-02"
     val previewDays = listOf(
-        UIDay(id = "2024-01-01", dayNumber = "1", weekLetter = "П", label = "01.01", isToday = false, isSelected = false),
-        UIDay(id = todayId, dayNumber = "2", weekLetter = "В", label = "02.01", isToday = true, isSelected = true),
-        UIDay(id = "2024-01-03", dayNumber = "3", weekLetter = "С", label = "03.01", isToday = false, isSelected = false)
+        UIDay(id = "2024-01-01", dayNumber = "1", weekLetter = "П", label = "01.01", isToday = false, isFuture = false, isSelected = false),
+        UIDay(id = todayId, dayNumber = "2", weekLetter = "В", label = "02.01", isToday = true, isFuture = false, isSelected = true),
+        UIDay(id = "2024-01-03", dayNumber = "3", weekLetter = "С", label = "03.01", isToday = false, isFuture = true, isSelected = false)
     )
     val previewState = remember {
         MainUiState(

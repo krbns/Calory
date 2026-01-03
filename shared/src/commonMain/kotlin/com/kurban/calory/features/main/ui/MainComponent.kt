@@ -77,7 +77,10 @@ class MainComponent(
         store.dispatch(
             when (intent) {
                 MainIntent.LoadToday -> MainAction.LoadDay(dependencies.dayProvider.currentDayId())
-                is MainIntent.SelectDay -> MainAction.LoadDay(intent.dayId)
+                is MainIntent.SelectDay -> {
+                    if (intent.dayId > todayId) return
+                    MainAction.LoadDay(intent.dayId)
+                }
                 is MainIntent.QueryChanged -> MainAction.QueryChanged(intent.query)
                 is MainIntent.FoodSelected -> MainAction.FoodSelected(intent.food)
                 is MainIntent.GramsChanged -> MainAction.GramsChanged(intent.gramsInput)
@@ -106,12 +109,14 @@ private fun buildDaysAround(todayId: String, range: Int = 3): List<UIDay> {
     return (-range..range).map { offset ->
         val date = today.plus(offset, DateTimeUnit.DAY)
         val label = "${date.dayOfMonth.toString().padStart(2, '0')}.${date.monthNumber.toString().padStart(2, '0')}"
+        val isFuture = date > today
         UIDay(
             id = date.toString(),
             dayNumber = date.dayOfMonth.toString(),
             weekLetter = date.dayOfWeek.firstRuLetter(),
             label = label,
             isToday = date == today,
+            isFuture = isFuture,
             isSelected = date == today
         )
     }
