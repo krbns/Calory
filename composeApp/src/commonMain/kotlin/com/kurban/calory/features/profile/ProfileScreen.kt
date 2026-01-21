@@ -80,7 +80,7 @@ fun ProfileScreen(
     LaunchedEffect(component) {
         component.effects.collect { effect ->
             when (effect) {
-                is ProfileEffect.Error -> errorMessage = effect.message
+                is ProfileEffect.Error -> errorMessage = effect.error.message
             }
         }
     }
@@ -230,7 +230,7 @@ fun ProfileScreen(
                     )
                 }
 
-                val message = errorMessage ?: state.errorMessage
+                val message = errorMessage ?: state.error?.message
                 if (message != null) {
                     Text(
                         text = message,

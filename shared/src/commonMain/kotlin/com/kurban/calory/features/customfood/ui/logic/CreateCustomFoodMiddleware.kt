@@ -1,5 +1,6 @@
 package com.kurban.calory.features.customfood.ui.logic
 
+import com.kurban.calory.core.domain.AppResult
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.customfood.domain.CreateCustomFoodUseCase
 import com.kurban.calory.features.customfood.ui.model.CustomFoodAction
@@ -18,21 +19,17 @@ class CreateCustomFoodMiddleware(
     ) {
         if (action !is CustomFoodAction.CreateFood) return
 
-        when (val result = createCustomFoodUseCase(action.parameters)) {
-            is CreateCustomFoodUseCase.Result.Success -> {
+        val result = createCustomFoodUseCase(action.parameters)
+
+        when (result) {
+            is AppResult.Success -> {
                 dispatch(CustomFoodAction.CreateFoodSuccess)
-                emitEffect(CustomFoodEffect.FoodCreated(result.food.name))
+                emitEffect(CustomFoodEffect.FoodCreated(result.value.name))
             }
 
-            is CreateCustomFoodUseCase.Result.Error -> {
-                dispatch(CustomFoodAction.CreateFoodFailure(result.message))
-                emitEffect(CustomFoodEffect.Error(result.message))
-            }
-
-            null -> {
-                val message = "Не удалось сохранить продукт"
-                dispatch(CustomFoodAction.CreateFoodFailure(message))
-                emitEffect(CustomFoodEffect.Error(message))
+            is AppResult.Failure -> {
+                dispatch(CustomFoodAction.CreateFoodFailure(result.error))
+                emitEffect(CustomFoodEffect.Error(result.error))
             }
         }
     }

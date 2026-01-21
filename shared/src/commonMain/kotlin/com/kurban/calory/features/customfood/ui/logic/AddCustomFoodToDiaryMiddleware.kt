@@ -1,5 +1,6 @@
 package com.kurban.calory.features.customfood.ui.logic
 
+import com.kurban.calory.core.domain.AppResult
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.customfood.domain.AddCustomFoodToDiaryUseCase
 import com.kurban.calory.features.customfood.ui.model.CustomFoodAction
@@ -18,8 +19,10 @@ class AddCustomFoodToDiaryMiddleware(
     ) {
         if (action !is CustomFoodAction.AddToDiary) return
 
-        when (val result = addCustomFoodToDiary(AddCustomFoodToDiaryUseCase.Parameters(action.foodId, action.grams))) {
-            is AddCustomFoodToDiaryUseCase.Result.Success -> {
+        val result = addCustomFoodToDiary(AddCustomFoodToDiaryUseCase.Parameters(action.foodId, action.grams))
+
+        when (result) {
+            is AppResult.Success -> {
                 dispatch(CustomFoodAction.AddToDiarySuccess)
                 val name = state.foods.firstOrNull { it.id == action.foodId }?.name
                 if (name != null) {
@@ -27,15 +30,9 @@ class AddCustomFoodToDiaryMiddleware(
                 }
             }
 
-            is AddCustomFoodToDiaryUseCase.Result.Error -> {
-                dispatch(CustomFoodAction.AddToDiaryFailure(result.message))
-                emitEffect(CustomFoodEffect.Error(result.message))
-            }
-
-            null -> {
-                val message = "Не удалось добавить продукт"
-                dispatch(CustomFoodAction.AddToDiaryFailure(message))
-                emitEffect(CustomFoodEffect.Error(message))
+            is AppResult.Failure -> {
+                dispatch(CustomFoodAction.AddToDiaryFailure(result.error))
+                emitEffect(CustomFoodEffect.Error(result.error))
             }
         }
     }

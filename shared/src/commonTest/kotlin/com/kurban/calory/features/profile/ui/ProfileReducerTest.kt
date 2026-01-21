@@ -1,5 +1,6 @@
 package com.kurban.calory.features.profile.ui
 
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserProfile
 import com.kurban.calory.features.profile.domain.model.UserSex
@@ -30,9 +31,10 @@ class ProfileReducerTest {
 
     @Test
     fun `save profile failure stores error`() {
-        val updated = reducer(ProfileUiState(isSaving = true), ProfileAction.SaveProfileFailure("err"))
+        val error = DomainError.ValidationError(originalMessage = "err")
+        val updated = reducer(ProfileUiState(isSaving = true), ProfileAction.SaveProfileFailure(error))
 
-        assertEquals("err", updated.errorMessage)
+        assertEquals(error, updated.error)
         assertFalse(updated.isSaving)
         assertFalse(updated.saved)
     }

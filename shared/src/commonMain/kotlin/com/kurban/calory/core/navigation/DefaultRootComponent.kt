@@ -87,7 +87,8 @@ class DefaultRootComponent(
     init {
         val scope = componentScope()
         scope.launch {
-            val needsOnboarding = koin.get<NeedsOnboardingUseCase>()(Unit) ?: false
+            val result = koin.get<NeedsOnboardingUseCase>()(Unit)
+            val needsOnboarding = result.getOrNull() ?: false
             if (needsOnboarding) {
                 navigation.replaceAll(Config.Onboarding)
             } else {

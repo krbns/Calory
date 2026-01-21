@@ -1,6 +1,7 @@
 package com.kurban.calory.features.main.ui.logic
 
 import com.kurban.calory.core.domain.AppDispatchers
+import com.kurban.calory.core.domain.AppResult
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
@@ -24,16 +25,21 @@ class LoadDayMiddleware(
     ) {
         if (action !is MainAction.LoadDay) return
 
-        try {
-            val tracked = withContext(dispatchers.io) {
-                getTrackedForDay(GetTrackedForDayUseCase.Parameters(action.dayId)) ?: emptyList()
+        val result = withContext(dispatchers.io) {
+            getTrackedForDay(GetTrackedForDayUseCase.Parameters(action.dayId))
+        }
+
+        when (result) {
+            is AppResult.Success -> {
+                val tracked = result.value.ifEmpty { emptyList() }
+                val uiItems = tracked.map { it.toUi() }
+                val totals: MacroTotals = calculateTotals(tracked)
+                dispatch(MainAction.LoadDaySuccess(uiItems, totals))
             }
-            val uiItems = tracked.map { it.toUi() }
-            val totals: MacroTotals = calculateTotals(tracked)
-            dispatch(MainAction.LoadDaySuccess(uiItems, totals))
-        } catch (e: Exception) {
-            emitEffect(MainEffect.Error(e.message ?: "Не удалось загрузить данные"))
-            dispatch(MainAction.LoadDayFailure(e.message.orEmpty()))
+            is AppResult.Failure -> {
+                emitEffect(MainEffect.Error(result.error))
+                dispatch(MainAction.LoadDayFailure(result.error))
+            }
         }
     }
 }

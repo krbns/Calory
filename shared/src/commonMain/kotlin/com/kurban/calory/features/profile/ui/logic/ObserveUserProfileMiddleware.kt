@@ -1,5 +1,6 @@
 package com.kurban.calory.features.profile.ui.logic
 
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainEffect
@@ -32,7 +33,10 @@ class ObserveUserProfileMiddleware(
         observeJob = scope.launch {
             observeUserProfileUseCase()
                 .map { profile -> profile?.let { calculateMacroTargetsUseCase(it) } }
-                .catch { emitEffect(MainEffect.Error(it.message ?: "Не удалось обновить профиль")) }
+                .catch {
+                    val error = DomainError.fromThrowable(it)
+                    emitEffect(MainEffect.Error(error))
+                }
                 .collect { targets -> dispatch(MainAction.LoadProfileSuccess(targets)) }
         }
     }

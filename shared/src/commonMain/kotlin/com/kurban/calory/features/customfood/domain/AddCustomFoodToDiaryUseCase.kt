@@ -1,6 +1,7 @@
 package com.kurban.calory.features.customfood.domain
 
 import com.kurban.calory.core.domain.CoroutineUseCase
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
 import com.kurban.calory.features.main.domain.model.TrackedFood
@@ -12,11 +13,14 @@ class AddCustomFoodToDiaryUseCase(
     private val trackedFoodRepository: TrackedFoodRepository,
     private val dayProvider: DayProvider,
     dispatcher: CoroutineDispatcher
-) : CoroutineUseCase<AddCustomFoodToDiaryUseCase.Parameters, AddCustomFoodToDiaryUseCase.Result>(dispatcher) {
+) : CoroutineUseCase<AddCustomFoodToDiaryUseCase.Parameters, String>(dispatcher) {
 
-    override suspend fun execute(parameters: Parameters): Result {
-        val food = customFoodRepository.getById(parameters.foodId) ?: return Result.Error("Продукт не найден")
-        if (parameters.grams <= 0) return Result.Error("Укажите вес порции")
+    override suspend fun execute(parameters: Parameters): String {
+        val food = customFoodRepository.getById(parameters.foodId)
+            ?: throw DomainError.ValidationError(originalMessage = "Продукт не найден")
+        if (parameters.grams <= 0) {
+            throw DomainError.ValidationError(originalMessage = "Укажите вес порции")
+        }
 
         val factor = parameters.grams / 100.0
         val dayId = dayProvider.currentDayId()
@@ -33,13 +37,8 @@ class AddCustomFoodToDiaryUseCase(
             timestamp = Clock.System.now().toEpochMilliseconds()
         )
         trackedFoodRepository.add(tracked)
-        return Result.Success(dayId)
+        return dayId
     }
 
     data class Parameters(val foodId: Long, val grams: Int)
-
-    sealed class Result {
-        data class Success(val dayId: String) : Result()
-        data class Error(val message: String) : Result()
-    }
 }

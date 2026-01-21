@@ -1,5 +1,6 @@
 package com.kurban.calory.features.customfood.ui.logic
 
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.customfood.domain.ObserveCustomFoodsUseCase
 import com.kurban.calory.features.customfood.ui.model.CustomFoodAction
@@ -32,9 +33,9 @@ class ObserveCustomFoodsMiddleware(
             try {
                 observeCustomFoods()
                     .catch {
-                        val message = it.message ?: "Не удалось загрузить список"
-                        dispatch(CustomFoodAction.FoodsFailed(message))
-                        emitEffect(CustomFoodEffect.Error(message))
+                        val error = DomainError.fromThrowable(it)
+                        dispatch(CustomFoodAction.FoodsFailed(error))
+                        emitEffect(CustomFoodEffect.Error(error))
                     }
                     .collect { foods -> dispatch(CustomFoodAction.FoodsUpdated(foods)) }
             } finally {

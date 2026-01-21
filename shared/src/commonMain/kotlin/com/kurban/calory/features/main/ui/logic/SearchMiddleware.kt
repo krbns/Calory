@@ -1,6 +1,7 @@
 package com.kurban.calory.features.main.ui.logic
 
 import com.kurban.calory.core.domain.AppDispatchers
+import com.kurban.calory.core.domain.AppResult
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.ui.model.MainAction
@@ -32,12 +33,14 @@ class SearchMiddleware(
         }
         searchJob?.cancel()
         searchJob = scope.launch(dispatchers.io) {
-            try {
-                val result = searchFood(SearchFoodUseCase.Parameters(action.query)) ?: emptyList()
-                dispatch(MainAction.SearchSuccess(result))
-            } catch (e: Exception) {
-                emitEffect(MainEffect.Error(e.message ?: "Ошибка поиска"))
-                dispatch(MainAction.SearchFailure(e.message.orEmpty()))
+            val result = searchFood(SearchFoodUseCase.Parameters(action.query))
+
+            when (result) {
+                is AppResult.Success -> dispatch(MainAction.SearchSuccess(result.value))
+                is AppResult.Failure -> {
+                    emitEffect(MainEffect.Error(result.error))
+                    dispatch(MainAction.SearchFailure(result.error))
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.kurban.calory.features.main.ui.logic
 
 import com.kurban.calory.core.domain.AppDispatchers
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.main.domain.CalculateTotalsUseCase
 import com.kurban.calory.features.main.domain.ObserveTrackedForDayUseCase
@@ -39,9 +40,9 @@ class ObserveDayMiddleware(
         observeJob = scope.launch {
             observeTrackedForDay(action.dayId)
                 .catch {
-                    val message = it.message ?: "Не удалось загрузить данные"
-                    emitEffect(MainEffect.Error(message))
-                    dispatch(MainAction.LoadDayFailure(message))
+                    val error = DomainError.fromThrowable(it)
+                    emitEffect(MainEffect.Error(error))
+                    dispatch(MainAction.LoadDayFailure(error))
                 }
                 .collect { tracked ->
                     val totals: MacroTotals = withContext(dispatchers.default) { calculateTotals(tracked) }

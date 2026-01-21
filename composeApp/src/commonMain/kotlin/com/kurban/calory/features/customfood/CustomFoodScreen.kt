@@ -126,7 +126,7 @@ private fun CustomFoodContent(
     LaunchedEffect(effects) {
         effects.collect { effect ->
             when (effect) {
-                is CustomFoodEffect.Error -> snackbarHostState.showSnackbar(effect.message)
+                is CustomFoodEffect.Error -> snackbarHostState.showSnackbar(effect.error.message)
                 is CustomFoodEffect.FoodCreated -> {
                     snackbarHostState.showSnackbar(
                         getString(Res.string.custom_food_created, effect.name)
@@ -209,9 +209,9 @@ private fun CustomFoodContent(
                 query = state.query,
                 onQueryChanged = { onDispatch(CustomFoodIntent.QueryChanged(it)) }
             )
-            state.errorMessage?.let { message ->
+            state.error?.let { error ->
                 Text(
-                    text = message,
+                    text = error.message,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(horizontal = MaterialTheme.spacing.small)

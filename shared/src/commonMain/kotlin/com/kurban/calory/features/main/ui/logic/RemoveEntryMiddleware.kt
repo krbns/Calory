@@ -1,5 +1,6 @@
 package com.kurban.calory.features.main.ui.logic
 
+import com.kurban.calory.core.domain.AppResult
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.core.ui.time.DayProvider
 import com.kurban.calory.features.main.domain.DeleteTrackedFoodUseCase
@@ -20,13 +21,17 @@ class RemoveEntryMiddleware(
     ) {
         if (action !is MainAction.RemoveEntry) return
 
-        try {
-            deleteTrackedFood(DeleteTrackedFoodUseCase.Parameters(action.entryId))
-            val dayToReload = state.selectedDayId.takeUnless { it.isBlank() } ?: dayProvider.currentDayId()
-            dispatch(MainAction.LoadDay(dayToReload))
-        } catch (e: Exception) {
-            emitEffect(MainEffect.Error(e.message ?: "Не удалось удалить запись"))
-            dispatch(MainAction.RemoveEntryFailure(e.message.orEmpty()))
+        val result = deleteTrackedFood(DeleteTrackedFoodUseCase.Parameters(action.entryId))
+
+        when (result) {
+            is AppResult.Success -> {
+                val dayToReload = state.selectedDayId.takeUnless { it.isBlank() } ?: dayProvider.currentDayId()
+                dispatch(MainAction.LoadDay(dayToReload))
+            }
+            is AppResult.Failure -> {
+                emitEffect(MainEffect.Error(result.error))
+                dispatch(MainAction.RemoveEntryFailure(result.error))
+            }
         }
     }
 }

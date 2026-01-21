@@ -1,5 +1,6 @@
 package com.kurban.calory.features.profile.ui.model
 
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserProfile
 import com.kurban.calory.features.profile.domain.model.UserSex
@@ -16,9 +17,9 @@ sealed class ProfileAction {
     object ClearError : ProfileAction()
 
     data class LoadProfileSuccess(val profile: UserProfile?) : ProfileAction()
-    data class LoadProfileFailure(val message: String) : ProfileAction()
+    data class LoadProfileFailure(val error: DomainError) : ProfileAction()
 
     object SaveProfileStarted : ProfileAction()
     data class SaveProfileSuccess(val profile: UserProfile) : ProfileAction()
-    data class SaveProfileFailure(val message: String) : ProfileAction()
+    data class SaveProfileFailure(val error: DomainError) : ProfileAction()
 }

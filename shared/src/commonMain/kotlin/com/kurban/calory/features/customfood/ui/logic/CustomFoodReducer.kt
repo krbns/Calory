@@ -20,15 +20,15 @@ fun customFoodReducer(): Reducer<CustomFoodUiState, CustomFoodAction> = { state,
             )
         }
 
-        is CustomFoodAction.CreateFood -> state.copy(isSaving = true, errorMessage = null)
+        is CustomFoodAction.CreateFood -> state.copy(isSaving = true, error = null)
         CustomFoodAction.CreateFoodSuccess -> state.copy(isSaving = false)
-        is CustomFoodAction.CreateFoodFailure -> state.copy(isSaving = false, errorMessage = action.message)
+        is CustomFoodAction.CreateFoodFailure -> state.copy(isSaving = false, error = action.error)
 
-        is CustomFoodAction.AddToDiaryFailure -> state.copy(errorMessage = action.message)
+        is CustomFoodAction.AddToDiaryFailure -> state.copy(error = action.error)
         CustomFoodAction.AddToDiarySuccess -> state
 
-        is CustomFoodAction.FoodsFailed -> state.copy(errorMessage = action.message)
-        CustomFoodAction.ClearError -> state.copy(errorMessage = null)
+        is CustomFoodAction.FoodsFailed -> state.copy(error = action.error)
+        CustomFoodAction.ClearError -> state.copy(error = null)
         else -> state
     }
 }

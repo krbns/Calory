@@ -116,7 +116,7 @@ fun MainScreen(
     LaunchedEffect(component) {
         component.effects.collect { effect ->
             when (effect) {
-                is MainEffect.Error -> errorMessage = effect.message
+                is MainEffect.Error -> errorMessage = effect.error.message
             }
         }
     }

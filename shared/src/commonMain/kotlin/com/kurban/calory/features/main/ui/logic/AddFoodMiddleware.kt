@@ -1,5 +1,7 @@
 package com.kurban.calory.features.main.ui.logic
 
+import com.kurban.calory.core.domain.AppResult
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.core.ui.mvi.Middleware
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
 import com.kurban.calory.features.main.ui.model.MainAction
@@ -20,28 +22,30 @@ class AddFoodMiddleware(
         if (action !is MainAction.AddSelectedFood) return
 
         if (state.selectedDayId.isNotBlank() && state.todayId.isNotBlank() && state.selectedDayId != state.todayId) {
-            emitEffect(MainEffect.Error("Добавлять продукты можно только за сегодняшний день"))
+            val error = DomainError.ValidationError(originalMessage = "Добавлять продукты можно только за сегодняшний день")
+            emitEffect(MainEffect.Error(error))
             return
         }
 
         val selected = state.selectedFood ?: run {
-            emitEffect(MainEffect.Error("Сначала выберите продукт"))
+            val error = DomainError.ValidationError(originalMessage = "Сначала выберите продукт")
+            emitEffect(MainEffect.Error(error))
             return
         }
         val gramsValue = state.gramsInput.replace(',', '.').toDoubleOrNull()?.roundToInt() ?: run {
-            emitEffect(MainEffect.Error("Введите размер порции в граммах"))
+            val error = DomainError.ValidationError(originalMessage = "Введите размер порции в граммах")
+            emitEffect(MainEffect.Error(error))
             return
         }
 
-        try {
-            when (val result = addTrackedFoodUseCase(AddTrackedFoodUseCase.Parameters(selected.name, gramsValue))) {
-                is AddTrackedFoodUseCase.Result.Success -> dispatch(MainAction.LoadDay(result.dayId))
-                is AddTrackedFoodUseCase.Result.Error -> emitEffect(MainEffect.Error(result.message))
-                null -> emitEffect(MainEffect.Error("Не удалось добавить продукт"))
+        val result = addTrackedFoodUseCase(AddTrackedFoodUseCase.Parameters(selected.name, gramsValue))
+
+        when (result) {
+            is AppResult.Success -> dispatch(MainAction.LoadDay(result.value))
+            is AppResult.Failure -> {
+                emitEffect(MainEffect.Error(result.error))
+                dispatch(MainAction.AddFoodFailure(result.error))
             }
-        } catch (e: Exception) {
-            emitEffect(MainEffect.Error(e.message ?: "Не удалось добавить продукт"))
-            dispatch(MainAction.AddFoodFailure(e.message.orEmpty()))
         }
     }
 }

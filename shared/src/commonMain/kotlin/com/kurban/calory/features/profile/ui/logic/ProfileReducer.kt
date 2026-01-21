@@ -15,7 +15,7 @@ fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action -
             val filtered = action.value.replace(',', '.').filter { it.isDigit() || it == '.' }
             state.copy(weightInput = filtered, saved = false)
         }
-        is ProfileAction.LoadProfile -> state.copy(isLoading = true, errorMessage = null)
+        is ProfileAction.LoadProfile -> state.copy(isLoading = true, error = null)
         is ProfileAction.LoadProfileSuccess -> {
             val profile = action.profile
             if (profile != null) {
@@ -27,17 +27,17 @@ fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action -
                     ageInput = profile.age.toString(),
                     heightInput = profile.heightCm.toString(),
                     weightInput = profile.weightKg.toString(),
-                    errorMessage = null
+                    error = null
                 )
             } else {
-                state.copy(isLoading = false, errorMessage = null)
+                state.copy(isLoading = false, error = null)
             }
         }
-        is ProfileAction.LoadProfileFailure -> state.copy(isLoading = false, errorMessage = action.message)
-        ProfileAction.SaveProfileStarted -> state.copy(isSaving = true, errorMessage = null, saved = false)
+        is ProfileAction.LoadProfileFailure -> state.copy(isLoading = false, error = action.error)
+        ProfileAction.SaveProfileStarted -> state.copy(isSaving = true, error = null, saved = false)
         is ProfileAction.SaveProfileSuccess -> state.copy(
             isSaving = false,
-            errorMessage = null,
+            error = null,
             saved = true,
             nameInput = action.profile.name,
             sex = action.profile.sex,
@@ -46,8 +46,8 @@ fun profileReducer(): Reducer<ProfileUiState, ProfileAction> = { state, action -
             heightInput = action.profile.heightCm.toString(),
             weightInput = action.profile.weightKg.toString()
         )
-        is ProfileAction.SaveProfileFailure -> state.copy(isSaving = false, errorMessage = action.message, saved = false)
-        ProfileAction.ClearError -> state.copy(errorMessage = null)
+        is ProfileAction.SaveProfileFailure -> state.copy(isSaving = false, error = action.error, saved = false)
+        ProfileAction.ClearError -> state.copy(error = null)
         else -> state
     }
 }

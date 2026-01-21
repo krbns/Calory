@@ -1,5 +1,6 @@
 package com.kurban.calory.features.customfood.ui.model
 
+import com.kurban.calory.core.domain.DomainError
 import com.kurban.calory.features.customfood.domain.model.CustomFood
 
 data class CustomFoodUiState(
@@ -7,5 +8,5 @@ data class CustomFoodUiState(
     val foods: List<CustomFood> = emptyList(),
     val filteredFoods: List<CustomFood> = emptyList(),
     val isSaving: Boolean = false,
-    val errorMessage: String? = null
+    val error: DomainError? = null
 )
