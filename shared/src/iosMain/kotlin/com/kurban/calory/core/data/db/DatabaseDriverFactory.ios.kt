@@ -6,6 +6,7 @@ import sqldelight.foodScheme.food.FoodDatabase
 import sqldelight.customFoodScheme.custom.CustomFoodDatabase
 import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
 import sqldelight.userProfileScheme.profile.UserProfileDatabase
+import sqldelight.barcodeProductScheme.barcode.BarcodeProductDatabase
 
 actual class DriverContext
 
@@ -26,5 +27,9 @@ actual class DatabaseDriverFactory actual constructor(
 
     actual fun createDriverForCustomFoodDatabase(): SqlDriver {
         return NativeSqliteDriver(CustomFoodDatabase.Schema, "customFood.db")
+    }
+
+    actual fun createDriverForBarcodeProductDatabase(): SqlDriver {
+        return NativeSqliteDriver(BarcodeProductDatabase.Schema, "barcodeProduct.db")
     }
 }

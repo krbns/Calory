@@ -1,5 +1,7 @@
 package com.kurban.calory.core.domain
 
+import com.kurban.calory.features.barcode.domain.usecase.ScanBarcodeUseCase
+
 sealed class DomainError : Exception() {
     abstract val originalMessage: String
 
@@ -24,6 +26,11 @@ sealed class DomainError : Exception() {
         override val originalMessage: String,
         override val cause: Throwable? = null
     ) : DomainError()
+
+    data class NotFound(
+        override val originalMessage: String,
+        override val cause: Throwable? = null
+    ): DomainError()
 
     companion object {
         fun fromThrowable(throwable: Throwable): DomainError = when (throwable) {

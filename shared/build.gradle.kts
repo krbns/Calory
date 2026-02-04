@@ -36,6 +36,10 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.decompose)
             implementation(libs.decompose.extensions.compose)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -44,6 +48,7 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.sql.delight.native.driver)
+            implementation(libs.ktor.client.darwin)
         }
         jvmMain.dependencies {
             implementation(libs.sql.delight.sqlite.driver)
@@ -54,6 +59,12 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.android.driver)
+            implementation(libs.ktor.client.android)
+            implementation(libs.mlkit.barcode.scanning)
+            implementation(libs.camerax.core)
+            implementation(libs.camerax.camera2)
+            implementation(libs.camerax.lifecycle)
+            implementation(libs.camerax.view)
         }
     }
 }
@@ -87,6 +98,10 @@ sqldelight {
         create("CustomFoodDatabase") {
             packageName.set("sqldelight.customFoodScheme.custom")
             srcDirs.from("src/commonMain/sqldelight/customFoodScheme")
+        }
+        create("BarcodeProductDatabase") {
+            packageName.set("sqldelight.barcodeProductScheme.barcode")
+            srcDirs.from("src/commonMain/sqldelight/barcodeProductScheme")
         }
     }
 }

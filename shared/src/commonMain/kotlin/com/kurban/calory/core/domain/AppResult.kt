@@ -17,6 +17,11 @@ sealed class AppResult<out T> {
         is Failure -> throw error.cause ?: RuntimeException(error.message)
     }
 
+    fun exceptionOrNull(): Throwable? = when (this) {
+        is Success -> null
+        is Failure -> error.cause
+    }
+
     fun <R> map(transform: (T) -> R): AppResult<R> = when (this) {
         is Success -> Success(transform(value))
         is Failure -> this

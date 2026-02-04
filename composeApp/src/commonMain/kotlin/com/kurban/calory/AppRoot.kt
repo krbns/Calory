@@ -7,6 +7,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.kurban.calory.core.navigation.RootComponent
 import com.kurban.calory.core.theme.CaloryTheme
+import com.kurban.calory.features.barcode.BarcodeScannerScreen
 import com.kurban.calory.features.customfood.CustomFoodScreen
 import com.kurban.calory.features.main.MainScreen
 import com.kurban.calory.features.onboarding.OnboardingScreen
@@ -28,6 +29,7 @@ fun AppRoot(component: RootComponent, modifier: Modifier = Modifier) {
                 is RootComponent.Child.MainChild -> MainScreen(component = child.component)
                 is RootComponent.Child.CustomFoodChild -> CustomFoodScreen(component = child.component)
                 is RootComponent.Child.ProfileChild -> ProfileScreen(child.component)
+                is RootComponent.Child.BarcodeScannerChild -> BarcodeScannerScreen(child.component)
             }
         }
     }

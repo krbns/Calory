@@ -1,0 +1,44 @@
+CREATE TABLE BarcodeProductEntity(
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    barcode TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    brand TEXT,
+    calories REAL NOT NULL,
+    proteins REAL NOT NULL,
+    fats REAL NOT NULL,
+    carbs REAL NOT NULL,
+    servingSize INTEGER NOT NULL,
+    imageUrl TEXT,
+    isFavorite INTEGER NOT NULL DEFAULT 0,
+    cachedAt INTEGER NOT NULL,
+    expiresAt INTEGER NOT NULL
+);
+
+selectByBarcode:
+SELECT * FROM BarcodeProductEntity 
+WHERE barcode = ? AND (isFavorite = 1 OR expiresAt > ?);
+
+insertOrUpdate:
+INSERT OR REPLACE INTO BarcodeProductEntity(
+    barcode, name, brand, calories, proteins, fats, carbs, 
+    servingSize, imageUrl, isFavorite, cachedAt, expiresAt
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateFavorite:
+UPDATE BarcodeProductEntity SET isFavorite = ? WHERE barcode = ?;
+
+selectFavorites:
+SELECT * FROM BarcodeProductEntity WHERE isFavorite = 1 ORDER BY name COLLATE NOCASE;
+
+deleteExpiredCache:
+DELETE FROM BarcodeProductEntity WHERE isFavorite = 0 AND expiresAt <= ?;
+
+deleteExpiredCacheCount:
+SELECT COUNT(*) FROM BarcodeProductEntity WHERE isFavorite = 0 AND expiresAt <= ?;
+
+selectAllCached:
+SELECT * FROM BarcodeProductEntity ORDER BY cachedAt DESC;
+
+count:
+SELECT COUNT(*) FROM BarcodeProductEntity;

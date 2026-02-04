@@ -10,6 +10,8 @@ import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import com.kurban.calory.core.domain.AppDispatchers
 import com.kurban.calory.core.ui.time.DayProvider
+import com.kurban.calory.features.barcode.ui.BarcodeScannerComponent
+import com.kurban.calory.features.barcode.ui.BarcodeScannerDependencies
 import com.kurban.calory.features.customfood.ui.CustomFoodComponent
 import com.kurban.calory.features.customfood.ui.CustomFoodDependencies
 import com.kurban.calory.features.main.domain.AddTrackedFoodUseCase
@@ -36,7 +38,6 @@ class DefaultRootComponent(
     private val koin: Koin,
 ) : RootComponent, ComponentContext by componentContext {
 
-    private val scope = componentScope()
     private val mainDependencies by lazy {
         MainDependencies(
             searchFoodUseCase = koin.get<SearchFoodUseCase>(),
@@ -110,12 +111,14 @@ class DefaultRootComponent(
                     onFinished = { navigation.replaceAll(Config.Main) }
                 )
             )
+
             Config.Main -> RootComponent.Child.MainChild(
                 MainComponent(
                     componentContext = componentContext,
                     dependencies = mainDependencies,
                     onOpenProfile = { navigation.pushNew(Config.Profile) },
                     onOpenCustomFoods = { navigation.pushNew(Config.CustomFood) },
+                    onOpenBarcodeScanner = { navigation.pushNew(Config.BarcodeScanner) },
                 )
             )
 
@@ -132,6 +135,19 @@ class DefaultRootComponent(
                     componentContext = componentContext,
                     dependencies = customFoodDependencies,
                     onBack = { navigation.pop() },
+                )
+            )
+
+            Config.BarcodeScanner -> RootComponent.Child.BarcodeScannerChild(
+                BarcodeScannerComponent(
+                    componentContext = componentContext,
+                    dependencies = BarcodeScannerDependencies(
+                        scanBarcodeUseCase = koin.get(),
+                        searchProductByBarcodeUseCase = koin.get(),
+                        addScannedFoodToDiaryUseCase = koin.get(),
+                        toggleFavoriteUseCase = koin.get(),
+                    ),
+                    onBack = { navigation.pop() }
                 )
             )
         }
@@ -153,4 +169,7 @@ sealed interface Config {
 
     @Serializable
     object CustomFood : Config
+
+    @Serializable
+    object BarcodeScanner : Config
 }

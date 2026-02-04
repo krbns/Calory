@@ -36,10 +36,11 @@ class Store<S : Any, A, E>(
 
     fun dispatch(action: A) {
         scope.launch {
-            middlewares.forEach { middleware ->
-                middleware(action, _state.value, { dispatch(it) }, { emitEffect(it) })
-            }
             _state.value = reducer(_state.value, action)
+            val currentState = _state.value
+            middlewares.forEach { middleware ->
+                middleware(action, currentState, { dispatch(it) }, { emitEffect(it) })
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import sqldelight.foodScheme.food.FoodDatabase
 import sqldelight.customFoodScheme.custom.CustomFoodDatabase
 import sqldelight.trackedFoodScheme.tracked.TrackedFoodDatabase
 import sqldelight.userProfileScheme.profile.UserProfileDatabase
+import sqldelight.barcodeProductScheme.barcode.BarcodeProductDatabase
 
 actual class DriverContext(
     val context: Context,
@@ -44,6 +45,14 @@ actual class DatabaseDriverFactory actual constructor(
             CustomFoodDatabase.Schema,
             driverContext.context,
             "customFood.db"
+        )
+    }
+
+    actual fun createDriverForBarcodeProductDatabase(): SqlDriver {
+        return AndroidSqliteDriver(
+            BarcodeProductDatabase.Schema,
+            driverContext.context,
+            "barcodeProduct.db"
         )
     }
 }

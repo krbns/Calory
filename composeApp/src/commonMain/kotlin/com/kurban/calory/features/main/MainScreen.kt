@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -135,26 +137,28 @@ fun MainScreen(
         onSelectDay = { component.dispatch(MainIntent.SelectDay(it)) },
         onOpenProfile = component.onOpenProfile,
         onOpenCustomFoods = component.onOpenCustomFoods,
+        onOpenBarcodeScanner = component.onOpenBarcodeScanner,
         modifier = modifier
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-private fun MainContent(
-    modifier: Modifier = Modifier,
-    state: MainUiState,
-    errorMessage: String?,
-    onQueryChanged: (String) -> Unit,
-    onSelectFood: (Food) -> Unit,
-    onGramsChanged: (String) -> Unit,
-    onAddFood: () -> Unit,
-    onRemoveEntry: (Long) -> Unit,
-    onErrorDismiss: () -> Unit,
-    onSelectDay: (String) -> Unit,
-    onOpenProfile: () -> Unit,
-    onOpenCustomFoods: () -> Unit
-) {
+    private fun MainContent(
+        modifier: Modifier = Modifier,
+        state: MainUiState,
+        errorMessage: String?,
+        onQueryChanged: (String) -> Unit,
+        onSelectFood: (Food) -> Unit,
+        onGramsChanged: (String) -> Unit,
+        onAddFood: () -> Unit,
+        onRemoveEntry: (Long) -> Unit,
+        onErrorDismiss: () -> Unit,
+        onSelectDay: (String) -> Unit,
+        onOpenProfile: () -> Unit,
+        onOpenCustomFoods: () -> Unit,
+        onOpenBarcodeScanner: () -> Unit
+    ) {
     var isOptionsSheetOpen by remember { mutableStateOf(false) }
     var isSearchSheetOpen by remember { mutableStateOf(false) }
     val optionsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -282,6 +286,27 @@ private fun MainContent(
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = MaterialTheme.elevation.medium)
                 ) {
                     Text(stringResource(Res.string.add_option_custom))
+                }
+                Button(
+                    onClick = {
+                        scope.launch {
+                            optionsSheetState.hide()
+                            isOptionsSheetOpen = false
+                            onOpenBarcodeScanner()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = optionButtonShape,
+                    colors = optionButtonColors,
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = MaterialTheme.elevation.medium)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
+                    Text("Сканировать штрих-код")
                 }
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             }
@@ -893,6 +918,7 @@ fun MainScreenPreview() {
         onErrorDismiss = {},
         onSelectDay = {},
         onOpenProfile = {},
-        onOpenCustomFoods = {}
+        onOpenCustomFoods = {},
+        onOpenBarcodeScanner = {}
     )
 }

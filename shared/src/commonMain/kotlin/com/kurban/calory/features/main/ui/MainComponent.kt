@@ -35,6 +35,7 @@ class MainComponent(
     private val dependencies: MainDependencies,
     val onOpenProfile: () -> Unit,
     val onOpenCustomFoods: () -> Unit,
+    val onOpenBarcodeScanner: () -> Unit,
 ) : ComponentContext by componentContext {
     private val scope = componentScope()
     private val todayId = dependencies.dayProvider.currentDayId()

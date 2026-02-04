@@ -12,4 +12,6 @@ expect class DatabaseDriverFactory(driverContext: DriverContext) {
     fun createDriverForUserProfileDatabase(): SqlDriver
 
     fun createDriverForCustomFoodDatabase(): SqlDriver
+
+    fun createDriverForBarcodeProductDatabase(): SqlDriver
 }
