@@ -34,3 +34,11 @@ plugins {
 
 include(":composeApp")
 include(":shared")
+include(":core:common")
+include(":core:database")
+include(":core:di")
+include(":feature:main")
+include(":feature:profile")
+include(":feature:onboarding")
+include(":feature:customfood")
+include(":feature:barcode")

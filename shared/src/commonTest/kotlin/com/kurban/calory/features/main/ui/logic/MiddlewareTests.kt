@@ -17,7 +17,7 @@ import com.kurban.calory.features.profile.domain.UserProfileRepository
 import com.kurban.calory.features.profile.domain.model.UserGoal
 import com.kurban.calory.features.profile.domain.model.UserProfile
 import com.kurban.calory.features.profile.domain.model.UserSex
-import com.kurban.calory.features.profile.ui.logic.ObserveUserProfileMiddleware
+import com.kurban.calory.features.main.ui.logic.ObserveUserProfileMiddleware
 import com.kurban.calory.testDispatchers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel

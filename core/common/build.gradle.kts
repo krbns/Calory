@@ -1,23 +1,17 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
+    androidTarget()
 
     listOf(
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "Shared"
+            baseName = "CoreCommon"
             isStatic = true
         }
     }
@@ -26,27 +20,22 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(projects.core.common)
-            api(projects.core.database)
-            api(projects.core.di)
-            api(projects.feature.main)
-            api(projects.feature.profile)
-            api(projects.feature.onboarding)
-            api(projects.feature.customfood)
-            api(projects.feature.barcode)
+            api(libs.kotlinx.coroutines.core)
+            api(libs.koin.core)
+            api(libs.viewModel)
+            api(libs.kotlinx.datetime)
+            api(libs.decompose)
+            api(libs.decompose.extensions.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
-        jvmTest.dependencies {
-            implementation(libs.koin.test)
-        }
     }
 }
 
 android {
-    namespace = "com.kurban.calory.shared"
+    namespace = "com.kurban.calory.core.common"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
