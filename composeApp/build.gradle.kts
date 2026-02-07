@@ -91,6 +91,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+        jniLibs {
+            // Workaround for 16 KB page-size devices when third-party .so are not yet fully aligned.
+            useLegacyPackaging = true
+        }
     }
     buildTypes {
         getByName("release") {
