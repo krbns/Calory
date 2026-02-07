@@ -125,7 +125,7 @@ fun ProfileScreen(
                     }
                     Text(
                         text = stringResource(Res.string.profile_title),
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }

@@ -134,7 +134,7 @@ val domainModule = module {
     factory { AddCustomFoodToDiaryUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     // Barcode scanning use cases
     factory { SearchProductByBarcodeUseCase(get(), get<AppDispatchers>().io) }
-    factory { ScanBarcodeUseCase(get(), get<AppDispatchers>().io) }
+    factory { ScanBarcodeUseCase(get(), get<AppDispatchers>().main) }
     factory { AddScannedFoodToDiaryUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     factory { ToggleFavoriteUseCase(get(), get<AppDispatchers>().io) }
     factory { CleanExpiredCacheUseCase(get(), get<AppDispatchers>().io) }

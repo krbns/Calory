@@ -4,10 +4,13 @@ import com.kurban.calory.features.barcode.data.remote.model.OpenFoodFactsRespons
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+
+private const val API_TIMEOUT_MS = 10_000L
 
 class OpenFoodFactsApi(
     private val httpClient: HttpClient = createDefaultClient()
@@ -35,6 +38,11 @@ class OpenFoodFactsApi(
     companion object {
         private fun createDefaultClient(): HttpClient {
             return HttpClient {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = API_TIMEOUT_MS
+                    connectTimeoutMillis = API_TIMEOUT_MS
+                    socketTimeoutMillis = API_TIMEOUT_MS
+                }
                 install(ContentNegotiation) {
                     json(Json {
                         ignoreUnknownKeys = true

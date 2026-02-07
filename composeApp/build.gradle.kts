@@ -26,6 +26,7 @@ kotlin {
             implementation(projects.shared)
             implementation(libs.decompose)
             implementation(libs.decompose.extensions.compose)
+            implementation(libs.camerax.view)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

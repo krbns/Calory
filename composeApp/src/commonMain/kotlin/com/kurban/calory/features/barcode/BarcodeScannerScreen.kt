@@ -4,6 +4,10 @@ package com.kurban.calory.features.barcode
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -368,55 +372,66 @@ private fun ScanningArea(
 
 @Composable
 private fun ScanningIndicator() {
-    // This would be replaced with actual camera preview
     Box(
         modifier = Modifier
-            .size(200.dp)
+            .size(240.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-            ),
-        contentAlignment = Alignment.Center
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
     ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(64.dp),
-            strokeWidth = 6.dp,
-            color = MaterialTheme.colorScheme.primary
+        PlatformCameraPreview(
+            modifier = Modifier.fillMaxSize()
         )
-        
-        // Simulated scanning lines animation
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.18f))
+        )
+
         ScanningLines()
     }
 }
 
 @Composable
 private fun ScanningLines() {
-    var animationProgress by remember { mutableStateOf(0f) }
-    
-    LaunchedEffect(Unit) {
-        while (true) {
-            kotlinx.coroutines.delay(50)
-            animationProgress = (animationProgress + 0.02f) % 1f
-        }
-    }
-    
-    Box(modifier = Modifier.size(180.dp)) {
-        // Top scanning line
+    val transition = rememberInfiniteTransition(label = "scanLineTransition")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "scanLineProgress"
+    )
+    val lineHeight = 18.dp
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val travelDistance = maxHeight - lineHeight
+        val lineOffset = travelDistance * progress
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
-                .background(MaterialTheme.colorScheme.primary)
-                .offset(y = (animationProgress * 176).dp)
+                .height(lineHeight)
+                .offset(y = lineOffset)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f),
+                            Color.Transparent
+                        )
+                    )
+                )
         )
-        
-        // Bottom scanning line
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp)
-                .background(MaterialTheme.colorScheme.primary)
-                .offset(y = ((animationProgress + 0.5f) % 1f * 176).dp)
+                .offset(y = lineOffset + 8.dp)
+                .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.95f))
         )
     }
 }

@@ -10,7 +10,9 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -20,11 +22,17 @@ import com.google.mlkit.vision.common.InputImage
 import com.kurban.calory.features.barcode.domain.model.ScanResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
+
+private const val SCAN_TIMEOUT_MS = 20_000L
 
 actual class BarcodeScanner actual constructor() {
     
     private var cameraProvider: ProcessCameraProvider? = null
     private var imageAnalysis: ImageAnalysis? = null
+    private var preview: Preview? = null
+    private var previewView: PreviewView? = null
     private var scanResult: CompletableDeferred<String>? = null
     private var context: Context? = null
     private var lifecycleOwner: LifecycleOwner? = null
@@ -48,10 +56,12 @@ actual class BarcodeScanner actual constructor() {
 
         return try {
             startCameraAnalysis(context, lifecycleOwner, deferred)
-            val barcode = deferred.await()
+            val barcode = withTimeout(SCAN_TIMEOUT_MS) { deferred.await() }
             ScanResult.Success(barcode)
         } catch (e: CancellationException) {
             ScanResult.Cancelled
+        } catch (e: TimeoutCancellationException) {
+            ScanResult.Error("Scanning timeout. Please try again")
         } catch (e: Exception) {
             ScanResult.Error("Scanning failed: ${e.message}", e)
         } finally {
@@ -97,6 +107,10 @@ actual class BarcodeScanner actual constructor() {
         imageAnalysis = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
+
+        preview = Preview.Builder().build().apply {
+            previewView?.surfaceProvider?.let(::setSurfaceProvider)
+        }
         
         imageAnalysis?.setAnalyzer(
             ContextCompat.getMainExecutor(context),
@@ -112,7 +126,18 @@ actual class BarcodeScanner actual constructor() {
             
             try {
                 cameraProvider?.unbindAll()
-                cameraProvider?.bindToLifecycle(lifecycleOwner, cameraSelector, imageAnalysis)
+                val previewUseCase = preview
+                val imageAnalysisUseCase = imageAnalysis
+                if (previewUseCase != null && imageAnalysisUseCase != null) {
+                    cameraProvider?.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        previewUseCase,
+                        imageAnalysisUseCase
+                    )
+                } else {
+                    scanResult.completeExceptionally(IllegalStateException("Camera use cases are not initialized"))
+                }
             } catch (e: Exception) {
                 scanResult.completeExceptionally(e)
             }
@@ -126,6 +151,7 @@ actual class BarcodeScanner actual constructor() {
         cameraProvider?.unbindAll()
         cameraProvider = null
         imageAnalysis = null
+        preview = null
         mlKitScanner?.close()
         mlKitScanner = null
     }
@@ -142,6 +168,12 @@ actual class BarcodeScanner actual constructor() {
     fun setContext(context: Context) {
         this.context = context
         this.lifecycleOwner = context as? LifecycleOwner
+    }
+
+    fun setPreviewView(previewView: PreviewView?) {
+        this.previewView = previewView
+        val surfaceProvider = previewView?.surfaceProvider ?: return
+        preview?.setSurfaceProvider(surfaceProvider)
     }
     
     fun requestCameraPermission() {
