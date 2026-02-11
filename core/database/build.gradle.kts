@@ -14,6 +14,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "CoreDatabase"
             isStatic = true
+            linkerOpts("-lsqlite3")
         }
     }
 

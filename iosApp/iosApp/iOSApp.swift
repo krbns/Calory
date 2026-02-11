@@ -1,10 +1,14 @@
 import SwiftUI
 
 @main
-struct iOSApp: App {
+struct CaloryApp: App {
+    @StateObject private var dependencies = AppDependencies()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(dependencies)
+                .preferredColorScheme(.dark)
         }
     }
 }
